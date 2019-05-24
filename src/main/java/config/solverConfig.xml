@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<solver>
+    <!-- Domain model configuration -->
+    <scanAnnotatedClasses>
+        <packageInclude>domain</packageInclude>
+    </scanAnnotatedClasses>
+
+    <!-- Score configuration -->
+    <scoreDirectorFactory>
+        <scoreDrl>config/rules.drl</scoreDrl>
+    </scoreDirectorFactory>
+
+    <!-- Optimization algorithms configuration -->
+    <termination>
+        <minutesSpentLimit>2</minutesSpentLimit>
+    </termination>
+
+    <constructionHeuristic>
+        <constructionHeuristicType>FIRST_FIT</constructionHeuristicType>
+    </constructionHeuristic>
+     <localSearch>
+       <unionMoveSelector>
+         <changeMoveSelector/>
+         <swapMoveSelector>
+           <filterClass>filter.DifferentCourseSwapMoveFilter</filterClass>
+         </swapMoveSelector>
+       </unionMoveSelector>
+       <acceptor>
+         <lateAcceptanceSize>600</lateAcceptanceSize>
+       </acceptor>
+       <forager>
+         <acceptedCountLimit>4</acceptedCountLimit>
+       </forager>
+     </localSearch>
+</solver>
