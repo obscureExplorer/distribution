@@ -20,6 +20,13 @@ public class Course implements Comparable<Course> {
 
     private Map<String,List<EduClass>> eduClassListMap;
 
+    public Map<String, List<EduClass>> getEduClassListMap() {
+        return eduClassListMap;
+    }
+
+    public void setEduClassListMap(Map<String, List<EduClass>> eduClassListMap) {
+        this.eduClassListMap = eduClassListMap;
+    }
 
     public String getName() {
         return name;
@@ -55,7 +62,12 @@ public class Course implements Comparable<Course> {
 
     @Override
     public String toString() {
-        return name;
+        return "Course{" +
+                "name='" + name + '\'' +
+                ", teacher=" + teacher +
+                ", classNo=" + classNo +
+                ", lectureSize=" + lectureSize +
+                '}';
     }
 
     @Override

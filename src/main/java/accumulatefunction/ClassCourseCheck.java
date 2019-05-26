@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * Created by xcy on 2019/5/23.
  */
-public class CourseCheck implements org.kie.api.runtime.rule.AccumulateFunction<CourseCheck.CourseCheckData> {
+public class ClassCourseCheck implements org.kie.api.runtime.rule.AccumulateFunction<ClassCourseCheck.CourseCheckData> {
 
     public static class CourseCheckData implements Serializable{
         protected Map<Object,Object> map;
@@ -97,7 +97,7 @@ public class CourseCheck implements org.kie.api.runtime.rule.AccumulateFunction<
 
     @Override
     public Class<?> getResultType() {
-        return Number.class;
+        return Integer.class;
     }
 
     @Override

@@ -4,6 +4,7 @@ import org.optaplanner.core.api.domain.solution.PlanningEntityCollectionProperty
 import org.optaplanner.core.api.domain.solution.PlanningScore;
 import org.optaplanner.core.api.domain.solution.PlanningSolution;
 import org.optaplanner.core.api.domain.solution.drools.ProblemFactCollectionProperty;
+import org.optaplanner.core.api.domain.valuerange.ValueRangeProvider;
 import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore;
 
 import java.util.ArrayList;
@@ -22,8 +23,13 @@ public class TimeTablingProblem {
     @ProblemFactCollectionProperty
     private List<Timeslot> timeslotList;
 
+    @ValueRangeProvider(id = "periodRange")
     @ProblemFactCollectionProperty
     private List<Period> periodList;
+
+    @ValueRangeProvider(id = "roomRange")
+    @ProblemFactCollectionProperty
+    private List<Room> roomList;
 
     @ProblemFactCollectionProperty
     private List<EduClass> eduClassList;
@@ -135,5 +141,13 @@ public class TimeTablingProblem {
         }
 
         return courseConflictList;
+    }
+
+    public List<Room> getRoomList() {
+        return roomList;
+    }
+
+    public void setRoomList(List<Room> roomList) {
+        this.roomList = roomList;
     }
 }

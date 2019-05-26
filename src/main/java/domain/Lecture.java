@@ -2,6 +2,7 @@ package domain;
 
 import org.optaplanner.core.api.domain.entity.PlanningEntity;
 import org.optaplanner.core.api.domain.entity.PlanningPin;
+import org.optaplanner.core.api.domain.valuerange.ValueRangeProvider;
 import org.optaplanner.core.api.domain.variable.PlanningVariable;
 
 import java.util.List;
@@ -99,6 +100,11 @@ public class Lecture implements Comparable<Lecture>{
     @PlanningVariable(valueRangeProviderRefs = {"eduClassRange"})
     public EduClass getEduClass() {
         return eduClass;
+    }
+
+    @ValueRangeProvider(id = "eduClassRange")
+    public List<EduClass> getPossibleEduClass() {
+        return getCourse().getPossibleEduClassList();
     }
 
     public void setEduClass(EduClass eduClass) {

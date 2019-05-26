@@ -18,4 +18,11 @@ public class Teacher  implements Comparable<Teacher>{
     public int compareTo(Teacher o) {
         return this.name.compareTo(o.name);
     }
+
+    @Override
+    public String toString() {
+        return "Teacher{" +
+                "name='" + name + '\'' +
+                '}';
+    }
 }
