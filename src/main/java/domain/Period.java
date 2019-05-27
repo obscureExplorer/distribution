@@ -1,9 +1,11 @@
 package domain;
 
+import java.io.Serializable;
+
 /**
  * Created by xcy on 2019/5/20.
  */
-public class Period {
+public class Period implements Serializable {
     private Day day;
     private Timeslot timeslot;
 

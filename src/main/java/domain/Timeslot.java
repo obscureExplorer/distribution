@@ -1,9 +1,11 @@
 package domain;
 
+import java.io.Serializable;
+
 /**
  * Created by xcy on 2019/5/20.
  */
-public class Timeslot {
+public class Timeslot implements Serializable {
     private static final String[] TIMES = {"08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"};
 
     private int timeslotIndex;

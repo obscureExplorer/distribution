@@ -38,12 +38,14 @@ end
 // 同一个时间，同一个地点只能由一个老师\班级在上课
 rule "roomOccupancy"
     when
-        Lecture($leftId : id, period != null, $period : period, room != null, $room : room)
+        $L1:Lecture($leftId : id, period != null, $period : period, room != null, $room : room,eduClass != null)
         // $leftLecture的period和room的id是最小的
-        not Lecture(period == $period, room == $room, id < $leftId)
+        not Lecture(period == $period, room == $room, id < $leftId,eduClass != null)
         // rightLecture的period和上面的是一样
-        Lecture(period == $period, room == $room, id > $leftId, $rightId : id)
+        $L2:Lecture(period == $period, room == $room, id > $leftId, $rightId : id,eduClass != null)
     then
+//        System.out.println("$1:" + $L1 + "," + $L1.getPeriod() + "," + $L1.getRoom());
+//        System.out.println("$2:" + $L2 + "," + $L2.getPeriod() + "," + $L2.getRoom());
         scoreHolder.addHardConstraintMatch(kcontext, -1);
 end
 
@@ -51,7 +53,7 @@ end
 rule "administrativeClass"
     when
         $administrativeClass : EduClass(type == 0)
-       accumulate($lectures :Lecture(eduClass == $administrativeClass); $result : check($lectures); $result != 0)
+       accumulate($lectures :Lecture(eduClass == $administrativeClass,room != null,period != null); $result : check($lectures); $result != 0)
     then
         scoreHolder.addHardConstraintMatch(kcontext, $result);
 end
@@ -60,21 +62,30 @@ end
 rule "teachingClass"
     when
         $teachingClass : EduClass(type > 0)
-        accumulate($lectures :Lecture(eduClass == $teachingClass); $result : check2($lectures); $result != 0)
+        accumulate($lectures :Lecture(eduClass == $teachingClass,room != null,period != null); $result : check2($lectures); $result != 0)
     then
         scoreHolder.addHardConstraintMatch(kcontext, $result);
 end
 
 
-rule "aa"
+rule "sameRoom"
     when
         $administrativeClass : EduClass(type == 0)
-        accumulate($lecture:Lecture(eduClass == $administrativeClass,$room : room);
-                $roomCount : count($room);
-                $roomCount > 1
-                )
+        $lectures : Lecture(eduClass == $administrativeClass,room != null ,period != null)
+        accumulate (
+/*            $room : Room()
+            and exists Lecture(room == $room) from $lectures
+            ;
+            $roomCount : count($room);
+            $roomCount > 1*/
+            Room();
+            $roomCount : count($room);
+            1;
+        )
     then
-        scoreHolder.addHardConstraintMatch(kcontext, 1-$roomCount.intValue());
+        System.out.println(1);
+        //System.out.println($roomCount);
+        //scoreHolder.addHardConstraintMatch(kcontext, 1-$roomCount.intValue());
 end
 
 /*

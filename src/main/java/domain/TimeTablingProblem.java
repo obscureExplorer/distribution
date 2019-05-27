@@ -7,6 +7,7 @@ import org.optaplanner.core.api.domain.solution.drools.ProblemFactCollectionProp
 import org.optaplanner.core.api.domain.valuerange.ValueRangeProvider;
 import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
  * Created by xcy on 2019/5/15.
  */
 @PlanningSolution
-public class TimeTablingProblem {
+public class TimeTablingProblem  implements Serializable {
 
     @ProblemFactCollectionProperty
     private List<Day> dayList;

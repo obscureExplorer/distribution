@@ -1,14 +1,15 @@
 package domain;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * Created by xcy on 2019/5/20.
  */
-public class EduClass {
+public class EduClass implements Serializable {
     private Integer id;
-    //类型为教学班时，所对应的科目
-    private Subject subject;
+    private String name;
     private List<Student> students;
     //0--行政班，1--选考的教学班，2--学考的教学班
     private int type;
@@ -36,4 +37,20 @@ public class EduClass {
     public void setStudents(List<Student> students) {
         this.students = students;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", EduClass.class.getSimpleName() + "[", "]")
+                .add("name='" + name + "'")
+                .toString();
+    }
+
 }

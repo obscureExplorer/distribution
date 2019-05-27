@@ -5,14 +5,25 @@
         <packageInclude>domain</packageInclude>
     </scanAnnotatedClasses>
 
+    <environmentMode>FULL_ASSERT</environmentMode>
+
     <!-- Score configuration -->
     <scoreDirectorFactory>
+
+<!--        <assertionScoreDirectorFactory>
+            <scoreDrl>config/rules.drl</scoreDrl>
+        </assertionScoreDirectorFactory>-->
         <scoreDrl>config/rules.drl</scoreDrl>
+        <initializingScoreTrend>ONLY_DOWN</initializingScoreTrend>
     </scoreDirectorFactory>
 
     <!-- Optimization algorithms configuration -->
     <termination>
-        <minutesSpentLimit>2</minutesSpentLimit>
+        <!--<minutesSpentLimit>2</minutesSpentLimit>-->
+        <termination>
+            <secondsSpentLimit>1</secondsSpentLimit>
+        </termination>
+        <!--<bestScoreLimit>-10hard/0soft</bestScoreLimit>-->
     </termination>
 
     <constructionHeuristic>

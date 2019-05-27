@@ -5,13 +5,15 @@ import org.optaplanner.core.api.domain.entity.PlanningPin;
 import org.optaplanner.core.api.domain.valuerange.ValueRangeProvider;
 import org.optaplanner.core.api.domain.variable.PlanningVariable;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * Created by xcy on 2019/5/20.
  */
 @PlanningEntity
-public class Lecture implements Comparable<Lecture>{
+public class Lecture implements Comparable<Lecture>, Serializable {
 
     private Long id;
     private Course course;
@@ -94,7 +96,10 @@ public class Lecture implements Comparable<Lecture>{
 
     @Override
     public String toString() {
-        return course + "-" + lectureIndexInCourse;
+        return new StringJoiner(", ", Lecture.class.getSimpleName() + "[", "]")
+                .add("" + course)
+                .add(",第" + lectureIndexInCourse + "个课时")
+                .toString();
     }
 
     @PlanningVariable(valueRangeProviderRefs = {"eduClassRange"})
@@ -102,13 +107,13 @@ public class Lecture implements Comparable<Lecture>{
         return eduClass;
     }
 
+    public void setEduClass(EduClass eduClass) {
+        this.eduClass = eduClass;
+    }
+
     @ValueRangeProvider(id = "eduClassRange")
     public List<EduClass> getPossibleEduClass() {
         return getCourse().getPossibleEduClassList();
-    }
-
-    public void setEduClass(EduClass eduClass) {
-        this.eduClass = eduClass;
     }
 
     public Long getId() {
@@ -119,7 +124,7 @@ public class Lecture implements Comparable<Lecture>{
         this.id = id;
     }
 
-    public List<EduClass> getPossibleEduClassList(){
+    public List<EduClass> getPossibleEduClassList() {
         return getCourse().getPossibleEduClassList();
     }
 

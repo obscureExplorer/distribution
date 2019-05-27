@@ -2,6 +2,12 @@ import domain.*;
 import org.optaplanner.core.api.solver.Solver;
 import org.optaplanner.core.api.solver.SolverFactory;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +17,7 @@ import java.util.Map;
  * Created by xcy on 2019/5/15.
  */
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         // Build the Solver
         SolverFactory<TimeTablingProblem> solverFactory = SolverFactory.createFromXmlResource("config/solverConfig.xml");
         Solver<TimeTablingProblem> solver = solverFactory.buildSolver();
@@ -26,12 +32,14 @@ public class Main {
             s.setName(names[i]);
             allStudents.add(s);
         }
+        String[] classNames = {"行政班1","行政班2","物理","化学","生物","历史","政治","地理"};
         //所有班级
         List<EduClass> allClasses = new ArrayList<>();
         for (int i = 0; i < 8; ++i) {
             EduClass c = new EduClass();
             c.setType(i < 2 ? 0 : 1);
             c.setId(i);
+            c.setName(classNames[i]);
             List<Student> s = new ArrayList<>();
             switch (i) {
                 case 0:
@@ -88,13 +96,17 @@ public class Main {
         problem.setCourseList(courseList);
         //lectures数据
         List<Lecture> lectures = new ArrayList<>();
-        for (Course course : courseList) {
-            for (int i = 0; i < course.getLectureSize(); i++) {
+        for (int i = 0; i < courseList.size(); i++) {
+            Course course = courseList.get(i);
+            for (int j = 0; j < course.getLectureSize(); j++) {
                 Lecture lecture = new Lecture();
+                lecture.setId((long) (i * courseList.size() + j));
+                lecture.setLectureIndexInCourse(j + 1);
                 lecture.setCourse(course);
                 lectures.add(lecture);
             }
         }
+
         problem.setLectureList(lectures);
         //3 days ,6 periods
         List<Day> dayList = new ArrayList<Day>(3);
@@ -129,12 +141,12 @@ public class Main {
             if (i == 0) {
                 tmp.add(allClasses.get(0));
                 tmp.add(allClasses.get(1));
-                map.put(ss[i],tmp);
+                map.put(ss[i], tmp);
             } else if (i == 1 || i == 2) {
-                map.put(ss[i],map.get(ss[i-1]));
+                map.put(ss[i], map.get(ss[i - 1]));
             } else {
                 tmp.add(allClasses.get(i - 1));
-                map.put(ss[i],tmp);
+                map.put(ss[i], tmp);
             }
         }
         courseList.forEach(t -> t.setEduClassListMap(map));
@@ -147,6 +159,21 @@ public class Main {
         problem.setRoomList(rooms);
 
         TimeTablingProblem solvedProblem = solver.solve(problem);
-        System.out.println(solvedProblem);
+        System.out.println(solvedProblem.getScore());
+
+        // write object to file
+        FileOutputStream fos = new FileOutputStream("mybean_" +  System.currentTimeMillis() +"_.ser");
+        ObjectOutputStream oos = new ObjectOutputStream(fos);
+        oos.writeObject(solvedProblem);
+        oos.close();
+/*
+        // read object from file
+        FileInputStream fis = new FileInputStream("mybean.ser");
+        ObjectInputStream ois = new ObjectInputStream(fis);
+        MyBean result = (MyBean) ois.readObject();
+        ois.close();
+
+        System.out.println("One:" + result.getOne() + ", Two:" + result.getTwo());*/
+
     }
 }

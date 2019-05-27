@@ -1,9 +1,11 @@
 package domain;
 
+import java.io.Serializable;
+
 /**
  * Created by xcy on 2019/5/20.
  */
-public class Teacher  implements Comparable<Teacher>{
+public class Teacher  implements Comparable<Teacher>, Serializable {
     private String name;
 
     public String getName() {

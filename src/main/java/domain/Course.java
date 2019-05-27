@@ -1,5 +1,6 @@
 package domain;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -8,7 +9,8 @@ import java.util.Objects;
  * 课程 -- 三元组(科目，老师，开班序号)
  * Created by xcy on 2019/5/20.
  */
-public class Course implements Comparable<Course> {
+public class Course implements Comparable<Course>, Serializable {
+
     //名称
     private String name;
     //教师
@@ -62,11 +64,11 @@ public class Course implements Comparable<Course> {
 
     @Override
     public String toString() {
-        return "Course{" +
-                "name='" + name + '\'' +
-                ", teacher=" + teacher +
-                ", classNo=" + classNo +
-                ", lectureSize=" + lectureSize +
+        return "{" +
+                "课程='" + name + '\'' +
+                ", 老师=" + teacher +
+                ", 开班号=" + classNo +
+                ", 课时数=" + lectureSize +
                 '}';
     }
 

@@ -1,11 +1,13 @@
 package domain;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by xcy on 2019/5/20.
  */
-public class Day {
+public class Day implements Serializable {
 
     private static final String[] WEEKDAYS = {"Mo", "Tu", "We", "Th", "Fr", "Sat", "Sun"};
 
@@ -42,4 +44,16 @@ public class Day {
         return Integer.toString(dayIndex);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Day day = (Day) o;
+        return dayIndex == day.dayIndex;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(dayIndex);
+    }
 }
