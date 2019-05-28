@@ -96,10 +96,7 @@ public class Lecture implements Comparable<Lecture>, Serializable {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", Lecture.class.getSimpleName() + "[", "]")
-                .add("" + course)
-                .add(",第" + lectureIndexInCourse + "个课时")
-                .toString();
+        return "<" + course.toString() + "、" + lectureIndexInCourse + "(课时序号)>";
     }
 
     @PlanningVariable(valueRangeProviderRefs = {"eduClassRange"})

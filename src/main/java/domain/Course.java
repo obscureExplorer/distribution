@@ -64,12 +64,12 @@ public class Course implements Comparable<Course>, Serializable {
 
     @Override
     public String toString() {
-        return "{" +
-                "课程='" + name + '\'' +
-                ", 老师=" + teacher +
-                ", 开班号=" + classNo +
-                ", 课时数=" + lectureSize +
-                '}';
+        return "<" +
+                "'" + name + '\'' +
+                "、" + teacher +
+                "、" + classNo +
+                "(开班号)、 " + lectureSize +
+                "(课时数)>";
     }
 
     @Override

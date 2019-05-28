@@ -1,12 +1,18 @@
-import domain.*;
+import domain.Course;
+import domain.Day;
+import domain.EduClass;
+import domain.Lecture;
+import domain.Period;
+import domain.Room;
+import domain.Student;
+import domain.Teacher;
+import domain.TimeTablingProblem;
+import domain.Timeslot;
 import org.optaplanner.core.api.solver.Solver;
 import org.optaplanner.core.api.solver.SolverFactory;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,7 +38,7 @@ public class Main {
             s.setName(names[i]);
             allStudents.add(s);
         }
-        String[] classNames = {"行政班1","行政班2","物理","化学","生物","历史","政治","地理"};
+        String[] classNames = {"行政班1", "行政班2", "物理班1", "化学班1", "生物班1", "历史班1", "政治班1", "地理班1"};
         //所有班级
         List<EduClass> allClasses = new ArrayList<>();
         for (int i = 0; i < 8; ++i) {
@@ -122,11 +128,13 @@ public class Main {
             timeslots.add(ts);
         }
         List<Period> periodList = new ArrayList<Period>(3 * 6);
+        int k = 0;
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 6; j++) {
                 Period p = new Period();
                 p.setDay(dayList.get(i));
                 p.setTimeslot(timeslots.get(j));
+                p.setIndex(k++);
                 periodList.add(p);
             }
         }
@@ -154,6 +162,7 @@ public class Main {
         for (int i = 0; i < 2; i++) {
             Room a = new Room();
             a.setName("room" + (i + 1));
+            a.setIndex(i);
             rooms.add(a);
         }
         problem.setRoomList(rooms);
@@ -161,19 +170,25 @@ public class Main {
         TimeTablingProblem solvedProblem = solver.solve(problem);
         System.out.println(solvedProblem.getScore());
 
+        String[][] table = new String[periodList.size()][rooms.size()];
+        List<Lecture> solvedLectures = solvedProblem.getLectureList();
+        for (Lecture solvedLecture : solvedLectures) {
+            int rIndex = solvedLecture.getRoom().getIndex();
+            int pIndex = solvedLecture.getPeriod().getIndex();
+            table[pIndex][rIndex] = solvedLecture.toString() + "/" + solvedLecture.getEduClass().toString();
+        }
+        for (String[] strings : table) {
+            for (String string : strings) {
+                System.out.print(string + ",");
+            }
+            System.out.print('\n');
+        }
+
         // write object to file
-        FileOutputStream fos = new FileOutputStream("mybean_" +  System.currentTimeMillis() +"_.ser");
+        FileOutputStream fos = new FileOutputStream("mybean_" + System.currentTimeMillis() + "_.ser");
         ObjectOutputStream oos = new ObjectOutputStream(fos);
         oos.writeObject(solvedProblem);
         oos.close();
-/*
-        // read object from file
-        FileInputStream fis = new FileInputStream("mybean.ser");
-        ObjectInputStream ois = new ObjectInputStream(fis);
-        MyBean result = (MyBean) ois.readObject();
-        ois.close();
-
-        System.out.println("One:" + result.getOne() + ", Two:" + result.getTwo());*/
 
     }
 }

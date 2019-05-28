@@ -8,6 +8,7 @@ import java.io.Serializable;
 public class Period implements Serializable {
     private Day day;
     private Timeslot timeslot;
+    private int index;
 
     public Day getDay() {
         return day;
@@ -34,4 +35,11 @@ public class Period implements Serializable {
         return day + "-" + timeslot;
     }
 
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
 }

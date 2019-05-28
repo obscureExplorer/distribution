@@ -31,7 +31,7 @@ public class ConstraintTest {
         ObjectInputStream ois = new ObjectInputStream(fis);
         problem = (TimeTablingProblem) ois.readObject();
 
-        List<Lecture> lectures = problem.getLectureList();
+     /*   List<Lecture> lectures = problem.getLectureList();
         List<EduClass> eduClasses = problem.getEduClassList();
         List<Period> periods = problem.getPeriodList();
         List<Room> rooms = problem.getRoomList();
@@ -114,7 +114,7 @@ public class ConstraintTest {
         lectures.get(23).setRoom(rooms.get(0));
         lectures.get(22).setPeriod(periods.get(8));
         lectures.get(23).setPeriod(periods.get(9));
-
+*/
         ois.close();
 
     }

@@ -8,6 +8,8 @@ import java.util.StringJoiner;
  */
 public class Room implements Serializable {
     private String name;
+    //展示结果用的
+    private int index;
 
     public String getName() {
         return name;
@@ -17,10 +19,16 @@ public class Room implements Serializable {
         this.name = name;
     }
 
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
     @Override
     public String toString() {
-        return new StringJoiner(", ", "教室" + "[", "]")
-                .add("name='" + name + "'")
-                .toString();
+        return "<" + name + ">";
     }
 }

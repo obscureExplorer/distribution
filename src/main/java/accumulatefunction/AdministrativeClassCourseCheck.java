@@ -17,14 +17,6 @@ import java.util.Map;
  */
 public class AdministrativeClassCourseCheck implements org.kie.api.runtime.rule.AccumulateFunction<AdministrativeClassCourseCheck.CourseCheckData> {
 
-    public static class CourseCheckData implements Serializable{
-        protected Map<Object,Object> map;
-
-        public CourseCheckData() {
-            this.map = new HashMap<>();
-        }
-    }
-
     @Override
     public CourseCheckData createContext() {
         return new CourseCheckData();
@@ -50,15 +42,22 @@ public class AdministrativeClassCourseCheck implements org.kie.api.runtime.rule.
 
     @Override
     public void reverse(CourseCheckData courseCheckData, Object o) throws Exception {
-
+        Lecture lecture = (Lecture) o;
+        Course course = lecture.getCourse();
+        Map<Object, Object> map = courseCheckData.map;
+        int num = (int) map.get(course);
+        if (num == 1)
+            map.remove(course);
+        else
+            map.put(course, num - 1);
     }
 
     /**
      * 输入：
-     *  (语文,张,1)--1
-     *  (语文,张,2)--2
-     *  (语文,王,1)--3
-     *  期待的排序结果：
+     * (语文,张,1)--1
+     * (语文,张,2)--2
+     * (语文,王,1)--3
+     * 期待的排序结果：
      * (语文,王,1)--3
      * (语文,张,2)--2
      * (语文,张,1)--1
@@ -74,17 +73,17 @@ public class AdministrativeClassCourseCheck implements org.kie.api.runtime.rule.
         Course last = null;
         int count = 0;
         for (Course c : courses) {
-            if(last != null && c.getName().equals(last.getName()))
+            if (last != null && c.getName().equals(last.getName()))
                 startFlag = false;
-            else{
+            else {
                 startFlag = true;
                 ++count;
             }
             //该课程目前已经分配的课时数
             int size = (int) map.get(c);
-            if(startFlag){
+            if (startFlag) {
                 score -= c.getLectureSize() - size;
-            }else{
+            } else {
                 score -= size;
             }
             last = c;
@@ -95,7 +94,7 @@ public class AdministrativeClassCourseCheck implements org.kie.api.runtime.rule.
 
     @Override
     public boolean supportsReverse() {
-        return false;
+        return true;
     }
 
     @Override
@@ -111,5 +110,13 @@ public class AdministrativeClassCourseCheck implements org.kie.api.runtime.rule.
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 
+    }
+
+    public static class CourseCheckData implements Serializable {
+        protected Map<Object, Object> map;
+
+        public CourseCheckData() {
+            this.map = new HashMap<>();
+        }
     }
 }

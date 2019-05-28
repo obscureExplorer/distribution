@@ -50,7 +50,14 @@ public class ClassCourseCheck implements org.kie.api.runtime.rule.AccumulateFunc
 
     @Override
     public void reverse(CourseCheckData courseCheckData, Object o) throws Exception {
-
+        Lecture lecture = (Lecture) o;
+        Course course = lecture.getCourse();
+        Map<Object, Object> map = courseCheckData.map;
+        int num = (int) map.get(course);
+        if (num == 1)
+            map.remove(course);
+        else
+            map.put(course, num - 1);
     }
 
     /**
@@ -92,7 +99,7 @@ public class ClassCourseCheck implements org.kie.api.runtime.rule.AccumulateFunc
 
     @Override
     public boolean supportsReverse() {
-        return false;
+        return true;
     }
 
     @Override

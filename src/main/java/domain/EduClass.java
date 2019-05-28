@@ -14,6 +14,10 @@ public class EduClass implements Serializable {
     //0--行政班，1--选考的教学班，2--学考的教学班
     private int type;
 
+    //展示结果用的
+    private int index;
+
+
     public Integer getId() {
         return id;
     }
@@ -48,9 +52,14 @@ public class EduClass implements Serializable {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", EduClass.class.getSimpleName() + "[", "]")
-                .add("name='" + name + "'")
-                .toString();
+        return "<" + name + ">";
     }
 
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
 }

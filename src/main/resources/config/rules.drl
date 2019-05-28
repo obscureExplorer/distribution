@@ -9,8 +9,10 @@ import domain.Student;
 import domain.Teacher;
 import domain.Timeslot;
 import domain.EduClass;
+import domain.Room;
 import accumulate accumulatefunction.AdministrativeClassCourseCheck check;
 import accumulate accumulatefunction.ClassCourseCheck check2;
+
 
 global HardSoftScoreHolder scoreHolder;
 
@@ -71,21 +73,15 @@ end
 rule "sameRoom"
     when
         $administrativeClass : EduClass(type == 0)
-        $lectures : Lecture(eduClass == $administrativeClass,room != null ,period != null)
         accumulate (
-/*            $room : Room()
-            and exists Lecture(room == $room) from $lectures
+            $room : Room()
+            and exists Lecture(room == $room,eduClass == $administrativeClass,period != null)
             ;
             $roomCount : count($room);
-            $roomCount > 1*/
-            Room();
-            $roomCount : count($room);
-            1;
+            $roomCount > 1
         )
     then
-        System.out.println(1);
-        //System.out.println($roomCount);
-        //scoreHolder.addHardConstraintMatch(kcontext, 1-$roomCount.intValue());
+        scoreHolder.addHardConstraintMatch(kcontext, 1-$roomCount.intValue());
 end
 
 /*

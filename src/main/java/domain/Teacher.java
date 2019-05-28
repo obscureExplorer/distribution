@@ -23,8 +23,8 @@ public class Teacher  implements Comparable<Teacher>, Serializable {
 
     @Override
     public String toString() {
-        return "Teacher{" +
-                "name='" + name + '\'' +
-                '}';
+        return "<" +
+                "'" + name + '\'' +
+                '>';
     }
 }
