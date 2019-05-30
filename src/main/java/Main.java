@@ -8,16 +8,21 @@ import domain.Student;
 import domain.Teacher;
 import domain.TimeTablingProblem;
 import domain.Timeslot;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 import org.optaplanner.core.api.solver.Solver;
 import org.optaplanner.core.api.solver.SolverFactory;
 
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by xcy on 2019/5/15.
@@ -27,81 +32,82 @@ public class Main {
         // Build the Solver
         SolverFactory<TimeTablingProblem> solverFactory = SolverFactory.createFromXmlResource("config/solverConfig.xml");
         Solver<TimeTablingProblem> solver = solverFactory.buildSolver();
-        // TODO: 2019/5/15 查询数据库，获取数据
         TimeTablingProblem problem = new TimeTablingProblem();
-        String[] names = {"a", "b", "c", "d"};
-        //所有学生
-        List<Student> allStudents = new ArrayList<>();
-        for (int i = 0; i < names.length; i++) {
-            Student s = new Student();
-            s.setId(i);
-            s.setName(names[i]);
-            allStudents.add(s);
-        }
-        String[] classNames = {"行政班1", "行政班2", "物理班1", "化学班1", "生物班1", "历史班1", "政治班1", "地理班1"};
-        //所有班级
-        List<EduClass> allClasses = new ArrayList<>();
-        for (int i = 0; i < 8; ++i) {
-            EduClass c = new EduClass();
-            c.setType(i < 2 ? 0 : 1);
-            c.setId(i);
-            c.setName(classNames[i]);
-            List<Student> s = new ArrayList<>();
-            switch (i) {
-                case 0:
-                case 2: {
-                    s.add(allStudents.get(0));
-                    s.add(allStudents.get(1));
-                    break;
-                }
-                case 1:
-                case 5: {
-                    s.add(allStudents.get(2));
-                    s.add(allStudents.get(3));
-                    break;
-                }
-                case 3:
-                case 4: {
-                    s.add(allStudents.get(0));
-                    s.add(allStudents.get(2));
-                    break;
-                }
-                case 6:
-                case 7: {
-                    s.add(allStudents.get(1));
-                    s.add(allStudents.get(3));
-                    break;
-                }
-            }
-            c.setStudents(s);
-            allClasses.add(c);
-        }
-        //分班的数据
-        problem.setEduClassList(allClasses);
-        List<Day> days = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
+
+        //设置时间地点
+        InputStreamReader in = new InputStreamReader(new FileInputStream("时间地点1.csv"), "gbk");
+        Iterable<CSVRecord> records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
+        CSVRecord record = records.iterator().next();
+        int dayNum = Integer.parseInt(record.get("day"));
+        int timeslotNum = Integer.parseInt(record.get("timeslot"));
+        int roomNum = Integer.parseInt(record.get("room"));
+
+        List<Day> dayList = new ArrayList<>();
+        for (int i = 0; i < dayNum; i++) {
             Day d = new Day();
-            d.setDayIndex(i);
-            days.add(d);
+            d.setDayIndex(i + 1);
+            dayList.add(d);
         }
-        //创建课程数据
+        List<Timeslot> timeslots = new ArrayList<>();
+        for (int i = 0; i < timeslotNum; i++) {
+            Timeslot ts = new Timeslot();
+            ts.setTimeslotIndex(i + 1);
+            timeslots.add(ts);
+        }
+        List<Period> periodList = new ArrayList<>();
+        int k = 0;
+        for (int i = 0; i < dayNum; i++) {
+            for (int j = 0; j < timeslotNum; j++) {
+                Period p = new Period();
+                p.setDay(dayList.get(i));
+                p.setTimeslot(timeslots.get(j));
+                p.setIndex(k++);
+                periodList.add(p);
+            }
+        }
+        List<Room> rooms = new ArrayList<>();
+        for (int i = 0; i < roomNum; i++) {
+            Room a = new Room();
+            a.setName("room" + (i + 1));
+            a.setIndex(i);
+            rooms.add(a);
+        }
+        problem.setDayList(dayList);
+        problem.setTimeslotList(timeslots);
+        problem.setPeriodList(periodList);
+        problem.setRoomList(rooms);
+
+        //设置课程数据
+        in = new InputStreamReader(new FileInputStream("教学资源1.csv"), "gbk");
+        records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
         List<Course> courseList = new ArrayList<>();
-        String[] subjectNames = {"语文", "数学", "英语", "数学", "英语", "语文", "物理", "化学", "生物", "历史", "政治", "地理"};
-        String[] teacherNames = {"张", "王", "黄", "王", "黄", "张", "赵", "钱", "孙", "李", "冯", "陈"};
-        int[] classNos = {1, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1};
-        for (int i = 0; i < subjectNames.length; i++) {
+
+        //设置课程和班级之间的对应关系
+        //行政班——语数英
+        //物理教学班——物理
+        Map<String, List<EduClass>> relationMap = new HashMap<>();
+
+        for (CSVRecord csvRecord : records) {
+            String subjectName = csvRecord.get("subjectName");
+            String teacherName = csvRecord.get("teacherName");
+            relationMap.putIfAbsent(subjectName, new ArrayList<>());
+
+            int classNo = Integer.parseInt(csvRecord.get("classNo"));
+            int lectureSize = Integer.parseInt(csvRecord.get("lectureSize"));
+            int type = Integer.parseInt(csvRecord.get("type"));
             Course c = new Course();
-            c.setName(subjectNames[i]);
-            Teacher t = new Teacher();
-            t.setName(teacherNames[i]);
-            c.setTeacher(t);
-            c.setLectureSize(2);
-            c.setClassNo(classNos[i]);
-            c.setType(i < 6 ? 0 : 1);
+            c.setName(subjectName);
+            Teacher teacher = new Teacher();
+            teacher.setName(teacherName);
+            c.setTeacher(teacher);
+            c.setLectureSize(lectureSize);
+            c.setClassNo(classNo);
+            c.setType(type);
             courseList.add(c);
         }
         problem.setCourseList(courseList);
-        //lectures数据
+
+        //构造lectures数据
         List<Lecture> lectures = new ArrayList<>();
         for (int i = 0; i < courseList.size(); i++) {
             Course course = courseList.get(i);
@@ -113,60 +119,47 @@ public class Main {
                 lectures.add(lecture);
             }
         }
-
         problem.setLectureList(lectures);
-        //3 days ,6 periods
-        List<Day> dayList = new ArrayList<Day>(3);
-        for (int i = 0; i < 3; i++) {
-            Day d = new Day();
-            d.setDayIndex(i + 1);
-            dayList.add(d);
-        }
-        List<Timeslot> timeslots = new ArrayList<Timeslot>(6);
-        for (int i = 0; i < 6; i++) {
-            Timeslot ts = new Timeslot();
-            ts.setTimeslotIndex(i + 1);
-            timeslots.add(ts);
-        }
-        List<Period> periodList = new ArrayList<Period>(3 * 6);
-        int k = 0;
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 6; j++) {
-                Period p = new Period();
-                p.setDay(dayList.get(i));
-                p.setTimeslot(timeslots.get(j));
-                p.setIndex(k++);
-                periodList.add(p);
+
+
+        //设置分班数据
+        in = new InputStreamReader(new FileInputStream("分班数据1.csv"), "gbk");
+        records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
+        Map<EduClass, List<Student>> classMap = new HashMap<>();
+        for (CSVRecord csvRecord : records) {
+            String className = csvRecord.get("className");
+            int type = Integer.parseInt(csvRecord.get("type"));
+            String subjectName = csvRecord.get("subjectName");
+
+            EduClass eduClass = new EduClass();
+            eduClass.setName(className);
+            eduClass.setType(type);
+            eduClass.setSubjectName(subjectName);
+            String studentName = csvRecord.get("studentName");
+            Student s = new Student();
+            s.setName(studentName);
+            if (!classMap.containsKey(eduClass)) {
+                classMap.put(eduClass, new ArrayList<>());
             }
+            classMap.get(eduClass).add(s);
         }
-        problem.setDayList(dayList);
-        problem.setTimeslotList(timeslots);
-        problem.setPeriodList(periodList);
-        //
-        Map<String, List<EduClass>> map = new HashMap<>();
-        String[] ss = {"语文", "数学", "英语", "物理", "化学", "生物", "历史", "政治", "地理"};
-        for (int i = 0; i < ss.length; i++) {
-            List<EduClass> tmp = new ArrayList<>();
-            if (i == 0) {
-                tmp.add(allClasses.get(0));
-                tmp.add(allClasses.get(1));
-                map.put(ss[i], tmp);
-            } else if (i == 1 || i == 2) {
-                map.put(ss[i], map.get(ss[i - 1]));
-            } else {
-                tmp.add(allClasses.get(i - 1));
-                map.put(ss[i], tmp);
-            }
-        }
-        courseList.forEach(t -> t.setEduClassListMap(map));
-        List<Room> rooms = new ArrayList<>();
-        for (int i = 0; i < 2; i++) {
-            Room a = new Room();
-            a.setName("room" + (i + 1));
-            a.setIndex(i);
-            rooms.add(a);
-        }
-        problem.setRoomList(rooms);
+        List<EduClass> eduClassList = classMap.keySet().stream().map(key -> {
+                    key.setStudents(classMap.get(key));
+                    return key;
+                }
+        ).collect(Collectors.toList());
+        problem.setEduClassList(eduClassList);
+
+        //大于0的都是教学班
+        eduClassList.stream().filter(c -> c.getType() > 0).forEach(c -> {
+            relationMap.get(c.getSubjectName()).add(c);
+        });
+        List<EduClass> administrativeClass = eduClassList.stream().filter(c -> c.getType() == 0).collect(Collectors.toList());
+        relationMap.keySet().stream().filter(key -> relationMap.get(key).size() == 0).forEach(key -> {
+            relationMap.put(key,administrativeClass);
+        });
+
+        courseList.forEach(t -> t.setEduClassListMap(relationMap));
 
         TimeTablingProblem solvedProblem = solver.solve(problem);
         System.out.println(solvedProblem.getScore());

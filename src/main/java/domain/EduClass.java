@@ -2,6 +2,7 @@ package domain;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by xcy on 2019/5/20.
@@ -12,6 +13,7 @@ public class EduClass implements Serializable {
     private Integer id;
     private String name;
     private List<Student> students;
+    private String subjectName;
     //0--行政班，1--选考的教学班，2--学考的教学班
     private int type;
 
@@ -62,5 +64,27 @@ public class EduClass implements Serializable {
 
     public void setIndex(int index) {
         this.index = index;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EduClass eduClass = (EduClass) o;
+        return type == eduClass.type &&
+                Objects.equals(name, eduClass.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, type);
+    }
+
+    public String getSubjectName() {
+        return subjectName;
+    }
+
+    public void setSubjectName(String subjectName) {
+        this.subjectName = subjectName;
     }
 }
