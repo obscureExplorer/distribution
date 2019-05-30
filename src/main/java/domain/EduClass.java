@@ -2,12 +2,13 @@ package domain;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.StringJoiner;
 
 /**
  * Created by xcy on 2019/5/20.
  */
 public class EduClass implements Serializable {
+    private static final long serialVersionUID = 2490355394270166676L;
+
     private Integer id;
     private String name;
     private List<Student> students;

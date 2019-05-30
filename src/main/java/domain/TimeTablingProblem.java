@@ -18,6 +18,8 @@ import java.util.stream.Collectors;
 @PlanningSolution
 public class TimeTablingProblem  implements Serializable {
 
+    private static final long serialVersionUID = 2869218948801133466L;
+
     @ProblemFactCollectionProperty
     private List<Day> dayList;
 
@@ -103,7 +105,7 @@ public class TimeTablingProblem  implements Serializable {
     @ProblemFactCollectionProperty
     private List<EduClassConflict> calculateClassConflict(){
         List<EduClassConflict> eduClassConflictList = new ArrayList<>();
-        int size = eduClassConflictList.size();
+        int size = eduClassList.size();
         for(int i = 0 ; i < size - 1; i++){
             for(int j = i + 1; j < size; j++){
                 EduClass leftEduClass = eduClassList.get(i);

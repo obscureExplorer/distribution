@@ -7,7 +7,9 @@ import java.util.Objects;
  * Created by xcy on 2019/5/15.
  */
 public class Student implements Serializable {
-   private Integer id;
+    private static final long serialVersionUID = 5278349298017494453L;
+
+    private Integer id;
    private String name;
 
     public Integer getId() {

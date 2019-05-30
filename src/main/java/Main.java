@@ -97,6 +97,7 @@ public class Main {
             c.setTeacher(t);
             c.setLectureSize(2);
             c.setClassNo(classNos[i]);
+            c.setType(i < 6 ? 0 : 1);
             courseList.add(c);
         }
         problem.setCourseList(courseList);

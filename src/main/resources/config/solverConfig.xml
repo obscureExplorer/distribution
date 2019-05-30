@@ -5,7 +5,7 @@
         <packageInclude>domain</packageInclude>
     </scanAnnotatedClasses>
 
-    <environmentMode>FULL_ASSERT</environmentMode>
+    <!--<environmentMode>FULL_ASSERT</environmentMode>-->
 
     <!-- Score configuration -->
     <scoreDirectorFactory>
@@ -27,6 +27,7 @@
     </termination>
 
     <constructionHeuristic>
+        <!--<constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>-->
         <constructionHeuristicType>FIRST_FIT</constructionHeuristicType>
     </constructionHeuristic>
      <localSearch>

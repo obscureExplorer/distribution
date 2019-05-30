@@ -9,6 +9,8 @@ import java.util.Objects;
  */
 public class Day implements Serializable {
 
+    private static final long serialVersionUID = -3738174756703337500L;
+
     private static final String[] WEEKDAYS = {"Mo", "Tu", "We", "Th", "Fr", "Sat", "Sun"};
 
     private int dayIndex;

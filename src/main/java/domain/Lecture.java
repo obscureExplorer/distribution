@@ -7,13 +7,15 @@ import org.optaplanner.core.api.domain.variable.PlanningVariable;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.StringJoiner;
+import java.util.Objects;
 
 /**
  * Created by xcy on 2019/5/20.
  */
-@PlanningEntity
+@PlanningEntity(/*difficultyWeightFactoryClass = LectureDifficultyWeightFactory.class*/)
 public class Lecture implements Comparable<Lecture>, Serializable {
+
+    private static final long serialVersionUID = 5281845023098929368L;
 
     private Long id;
     private Course course;
@@ -129,5 +131,19 @@ public class Lecture implements Comparable<Lecture>, Serializable {
     @Override
     public int compareTo(Lecture o) {
         return this.course.compareTo(o.course);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Lecture lecture = (Lecture) o;
+        return lectureIndexInCourse == lecture.lectureIndexInCourse &&
+                Objects.equals(course, lecture.course);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(course, lectureIndexInCourse);
     }
 }

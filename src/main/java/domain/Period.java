@@ -6,6 +6,8 @@ import java.io.Serializable;
  * Created by xcy on 2019/5/20.
  */
 public class Period implements Serializable {
+    private static final long serialVersionUID = 2761408999678903490L;
+
     private Day day;
     private Timeslot timeslot;
     private int index;

@@ -1,7 +1,3 @@
-import domain.EduClass;
-import domain.Lecture;
-import domain.Period;
-import domain.Room;
 import domain.TimeTablingProblem;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -11,7 +7,6 @@ import org.optaplanner.test.impl.score.buildin.hardsoft.HardSoftScoreVerifier;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.List;
 
 /**
  * Created by xcy on 2019/5/27.
@@ -147,5 +142,10 @@ public class ConstraintTest {
     @Test
     public void sameRoom() {
         scoreVerifier.assertHardWeight("sameRoom", 0, problem);
+    }
+
+    @Test
+    public void roomStability(){
+        scoreVerifier.assertHardWeight("roomStability", 0, problem);
     }
 }

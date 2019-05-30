@@ -12,6 +12,7 @@ import java.io.Serializable;
  */
 public class CourseConflict implements Serializable, Comparable<CourseConflict>{
 
+    private static final long serialVersionUID = 6567940871874095828L;
     private final Course leftCourse;
     private final Course rightCourse;
     private final int conflictCount;

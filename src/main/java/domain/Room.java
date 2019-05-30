@@ -1,12 +1,13 @@
 package domain;
 
 import java.io.Serializable;
-import java.util.StringJoiner;
 
 /**
  * Created by xcy on 2019/5/20.
  */
 public class Room implements Serializable {
+    private static final long serialVersionUID = 3169438635430425998L;
+
     private String name;
     //展示结果用的
     private int index;
