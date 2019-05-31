@@ -9,16 +9,26 @@ import domain.Teacher;
 import domain.TimeTablingProblem;
 import domain.Timeslot;
 import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
+import org.optaplanner.benchmark.api.PlannerBenchmark;
+import org.optaplanner.benchmark.api.PlannerBenchmarkFactory;
 import org.optaplanner.core.api.solver.Solver;
 import org.optaplanner.core.api.solver.SolverFactory;
 
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +45,7 @@ public class Main {
         TimeTablingProblem problem = new TimeTablingProblem();
 
         //设置时间地点
-        InputStreamReader in = new InputStreamReader(new FileInputStream("时间地点1.csv"), "gbk");
+        InputStreamReader in = new InputStreamReader(new FileInputStream("时间地点2.csv"), "gbk");
         Iterable<CSVRecord> records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
         CSVRecord record = records.iterator().next();
         int dayNum = Integer.parseInt(record.get("day"));
@@ -78,7 +88,7 @@ public class Main {
         problem.setRoomList(rooms);
 
         //设置课程数据
-        in = new InputStreamReader(new FileInputStream("教学资源1.csv"), "gbk");
+        in = new InputStreamReader(new FileInputStream("教学资源2.csv"), "gbk");
         records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
         List<Course> courseList = new ArrayList<>();
 
@@ -106,14 +116,14 @@ public class Main {
             courseList.add(c);
         }
         problem.setCourseList(courseList);
-
+        int l = 0;
         //构造lectures数据
         List<Lecture> lectures = new ArrayList<>();
         for (int i = 0; i < courseList.size(); i++) {
             Course course = courseList.get(i);
             for (int j = 0; j < course.getLectureSize(); j++) {
                 Lecture lecture = new Lecture();
-                lecture.setId((long) (i * courseList.size() + j));
+                lecture.setId((long) (l++));
                 lecture.setLectureIndexInCourse(j + 1);
                 lecture.setCourse(course);
                 lectures.add(lecture);
@@ -123,7 +133,7 @@ public class Main {
 
 
         //设置分班数据
-        in = new InputStreamReader(new FileInputStream("分班数据1.csv"), "gbk");
+        in = new InputStreamReader(new FileInputStream("分班数据2.csv"), "gbk");
         records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
         Map<EduClass, List<Student>> classMap = new HashMap<>();
         for (CSVRecord csvRecord : records) {
@@ -156,7 +166,7 @@ public class Main {
         });
         List<EduClass> administrativeClass = eduClassList.stream().filter(c -> c.getType() == 0).collect(Collectors.toList());
         relationMap.keySet().stream().filter(key -> relationMap.get(key).size() == 0).forEach(key -> {
-            relationMap.put(key,administrativeClass);
+            relationMap.put(key, administrativeClass);
         });
 
         courseList.forEach(t -> t.setEduClassListMap(relationMap));
@@ -164,25 +174,29 @@ public class Main {
         TimeTablingProblem solvedProblem = solver.solve(problem);
         System.out.println(solvedProblem.getScore());
 
-        String[][] table = new String[periodList.size()][rooms.size()];
-        List<Lecture> solvedLectures = solvedProblem.getLectureList();
-        for (Lecture solvedLecture : solvedLectures) {
-            int rIndex = solvedLecture.getRoom().getIndex();
-            int pIndex = solvedLecture.getPeriod().getIndex();
-            table[pIndex][rIndex] = solvedLecture.toString() + "/" + solvedLecture.getEduClass().toString();
-        }
-        for (String[] strings : table) {
-            for (String string : strings) {
-                System.out.print(string + ",");
+        System.out.println(solver.explainBestScore());
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
+        try (
+                BufferedWriter writer = Files.newBufferedWriter(Paths.get("result_" + formatter.format(LocalDateTime.now()) + ".csv"), Charset.forName("gbk"));
+                CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("lecture", "eduClass", "period", "room"))
+        ) {
+            List<Lecture> solvedLectures = solvedProblem.getLectureList();
+            for (Lecture solvedLecture : solvedLectures) {
+                csvPrinter.printRecord(solvedLecture.toString(), solvedLecture.getEduClass().toString(), solvedLecture.getPeriod(), solvedLecture.getRoom());
             }
-            System.out.print('\n');
+            csvPrinter.flush();
         }
 
-        // write object to file
+/*        // write object to file
         FileOutputStream fos = new FileOutputStream("mybean_" + System.currentTimeMillis() + "_.ser");
         ObjectOutputStream oos = new ObjectOutputStream(fos);
         oos.writeObject(solvedProblem);
-        oos.close();
+        oos.close();*/
+
+/*        PlannerBenchmarkFactory benchmarkFactory = PlannerBenchmarkFactory.createFromSolverFactory(solverFactory);
+        PlannerBenchmark plannerBenchmark = benchmarkFactory.buildPlannerBenchmark(problem);
+        plannerBenchmark.benchmarkAndShowReportInBrowser();*/
 
     }
 }

@@ -19,16 +19,22 @@
 
     <!-- Optimization algorithms configuration -->
     <termination>
-        <!--<minutesSpentLimit>2</minutesSpentLimit>-->
+        <minutesSpentLimit>1</minutesSpentLimit>
 <!--        <termination>
             <secondsSpentLimit>10</secondsSpentLimit>
         </termination>-->
-        <bestScoreLimit>0hard/0soft</bestScoreLimit>
+        <!--<bestScoreLimit>0hard/-100soft</bestScoreLimit>-->
     </termination>
 
+<!--    <localSearch>
+        <termination>
+        <unimprovedStepCountLimit>100</unimprovedStepCountLimit>
+        </termination>
+     </localSearch>-->
+
     <constructionHeuristic>
-        <!--<constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>-->
-        <constructionHeuristicType>FIRST_FIT</constructionHeuristicType>
+        <constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>
+        <!--<constructionHeuristicType>FIRST_FIT</constructionHeuristicType>-->
     </constructionHeuristic>
      <localSearch>
        <unionMoveSelector>

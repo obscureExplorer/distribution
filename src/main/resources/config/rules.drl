@@ -32,7 +32,7 @@ rule "conflictingEduClassDifferentCourseInSamePeriod"
     when
         $eduClassConflict : EduClassConflict($leftEduClass : leftEduClass,$rightEduClass : rightEduClass)
         $leftLecture : Lecture(eduClass == $leftEduClass, $period : period, period != null)
-        $rightLecture : Lecture(eduClass == $rightEduClass, period == $period, period != null)
+        $rightLecture : Lecture(eduClass == $rightEduClass, period == $period, period != null, this != $leftLecture)
     then
         scoreHolder.addHardConstraintMatch(kcontext, - $eduClassConflict.getConflictCount());
 end
@@ -51,7 +51,8 @@ rule "roomOccupancy"
         scoreHolder.addHardConstraintMatch(kcontext, -1);
 end
 
-//行政班需要有语数英，而且是同一个老师、课时数正确
+
+//行政班需要有除了选修以外的必修课，而且是同一个老师、课时数正确
 rule "administrativeClass"
     when
        $administrativeClass : EduClass(type == 0)
@@ -81,7 +82,7 @@ rule "sameRoom"
             $roomCount > 1
         )
     then
-        scoreHolder.addHardConstraintMatch(kcontext, 1-$roomCount.intValue());
+        scoreHolder.addSoftConstraintMatch(kcontext, 1-$roomCount.intValue());
 end
 
 /*
@@ -111,6 +112,7 @@ end
 // RoomStability: All lectures of a course should be given in the same room.
 // Each distinct room used for the lectures of a course, but the first, counts as 1 point of penalty.
 //同一个course的lecture应该在同一间教室
+/*
 rule "roomStability"
     when
         $course : Course(type != 0)
@@ -122,4 +124,4 @@ rule "roomStability"
         )
     then
         scoreHolder.addSoftConstraintMatch(kcontext, -($roomCount.intValue() - 1));
-end
+end*/

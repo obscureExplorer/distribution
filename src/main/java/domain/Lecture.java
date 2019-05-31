@@ -12,7 +12,7 @@ import java.util.Objects;
 /**
  * Created by xcy on 2019/5/20.
  */
-@PlanningEntity(/*difficultyWeightFactoryClass = LectureDifficultyWeightFactory.class*/)
+@PlanningEntity(difficultyWeightFactoryClass = LectureDifficultyWeightFactory.class)
 public class Lecture implements Comparable<Lecture>, Serializable {
 
     private static final long serialVersionUID = 5281845023098929368L;
@@ -98,7 +98,7 @@ public class Lecture implements Comparable<Lecture>, Serializable {
 
     @Override
     public String toString() {
-        return "<" + course.toString() + "、" + lectureIndexInCourse + "(课时序号)>";
+        return "<" + course.toString() + "-" + lectureIndexInCourse + "(课时序号)>";
     }
 
     @PlanningVariable(valueRangeProviderRefs = {"eduClassRange"})

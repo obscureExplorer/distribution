@@ -82,14 +82,15 @@ public class AdministrativeClassCourseCheck implements org.kie.api.runtime.rule.
             //该课程目前已经分配的课时数
             int size = (int) map.get(c);
             if (startFlag) {
-                score -= c.getLectureSize() - size;
+                int diff = c.getLectureSize() - size;
+                score -= diff > 0? diff : -diff;
             } else {
                 score -= size;
             }
             last = c;
         }
         //对于行政班--count应该是3
-        return score + (count - 3) * 10;
+        return score + (count - 6) * 10;
     }
 
     @Override

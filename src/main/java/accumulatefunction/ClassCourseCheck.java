@@ -88,7 +88,8 @@ public class ClassCourseCheck implements org.kie.api.runtime.rule.AccumulateFunc
             //该课程目前已经分配的课时数
             int size = (int) map.get(c);
             if(startFlag){
-                score -= c.getLectureSize() - size;
+                int diff = c.getLectureSize() - size;
+                score -= diff > 0? diff : -diff;
             }else{
                 score -= size;
             }

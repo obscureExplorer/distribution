@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * Created by xcy on 2019/5/15.
  */
 @PlanningSolution
-public class TimeTablingProblem  implements Serializable {
+public class TimeTablingProblem implements Serializable {
 
     private static final long serialVersionUID = 2869218948801133466L;
 
@@ -103,11 +103,12 @@ public class TimeTablingProblem  implements Serializable {
     }
 
     @ProblemFactCollectionProperty
-    private List<EduClassConflict> calculateClassConflict(){
+    private List<EduClassConflict> calculateClassConflict() {
         List<EduClassConflict> eduClassConflictList = new ArrayList<>();
         int size = eduClassList.size();
-        for(int i = 0 ; i < size - 1; i++){
-            for(int j = i + 1; j < size; j++){
+        //班级与班级之间的冲突
+        for (int i = 0; i < size - 1; i++) {
+            for (int j = i + 1; j < size; j++) {
                 EduClass leftEduClass = eduClassList.get(i);
                 EduClass rightEduClass = eduClassList.get(j);
 
@@ -116,21 +117,28 @@ public class TimeTablingProblem  implements Serializable {
                 long conflictCount = leftStudents.stream()
                         .filter(rightStudents::contains)
                         .collect(Collectors.counting());
-                if(conflictCount > 0)
-                    eduClassConflictList.add(new EduClassConflict(leftEduClass,rightEduClass, (int) conflictCount));
+                if (conflictCount > 0)
+                    eduClassConflictList.add(new EduClassConflict(leftEduClass, rightEduClass, (int) conflictCount));
             }
         }
-
+        //与自身构成冲突
+        for (EduClass eduClass : eduClassList) {
+            // eduClassConflictList.add(new EduClassConflict(eduClass, eduClass, eduClass.getStudents().size()));
+            EduClass e = new EduClass();
+            e.setType(eduClass.getType());
+            e.setName(eduClass.getName());
+            eduClassConflictList.add(new EduClassConflict(eduClass, e, eduClass.getStudents().size()));
+        }
         return eduClassConflictList;
     }
 
     @ProblemFactCollectionProperty
-    private List<CourseConflict> calculateCourseConflict(){
+    private List<CourseConflict> calculateCourseConflict() {
         List<CourseConflict> courseConflictList = new ArrayList<>();
 
         int size = courseList.size();
         for (int i = 0; i < size - 1; i++) {
-            for(int j = i + 1; j < size; j++){
+            for (int j = i + 1; j < size; j++) {
                 Course leftCourse = courseList.get(i);
                 Course rightCourse = courseList.get(j);
                 int conflictCount = 0;

@@ -55,7 +55,7 @@ public class EduClass implements Serializable {
 
     @Override
     public String toString() {
-        return "<" + name + ">";
+        return name;
     }
 
     public int getIndex() {

@@ -34,7 +34,7 @@ public class Period implements Serializable {
 
     @Override
     public String toString() {
-        return day + "-" + timeslot;
+        return day + "_" + timeslot;
     }
 
     public int getIndex() {

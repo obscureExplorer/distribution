@@ -26,9 +26,7 @@ public class Teacher  implements Comparable<Teacher>, Serializable {
 
     @Override
     public String toString() {
-        return "<" +
-                "'" + name + '\'' +
-                '>';
+        return  name;
     }
 
     @Override
