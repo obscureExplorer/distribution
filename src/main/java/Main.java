@@ -1,34 +1,17 @@
-import domain.Course;
-import domain.Day;
-import domain.EduClass;
-import domain.Lecture;
-import domain.Period;
-import domain.Room;
-import domain.Student;
-import domain.Teacher;
-import domain.TimeTablingProblem;
-import domain.Timeslot;
+import domain.*;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
-import org.optaplanner.benchmark.api.PlannerBenchmark;
-import org.optaplanner.benchmark.api.PlannerBenchmarkFactory;
 import org.optaplanner.core.api.solver.Solver;
 import org.optaplanner.core.api.solver.SolverFactory;
 
-import java.io.BufferedWriter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -177,22 +160,29 @@ public class Main {
         System.out.println(solver.explainBestScore());
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
+        String time = formatter.format(LocalDateTime.now());
         try (
-                BufferedWriter writer = Files.newBufferedWriter(Paths.get("result_" + formatter.format(LocalDateTime.now()) + ".csv"), Charset.forName("gbk"));
-                CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("lecture", "eduClass", "period", "room"))
+                BufferedWriter writer = Files.newBufferedWriter(Paths.get("result_" + time + ".csv"), Charset.forName("gbk"));
+                CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("id", "name", "teacher", "lectureSize", "classNo", "lectureIndexInCourse", "eduClass", "period", "room"))
         ) {
             List<Lecture> solvedLectures = solvedProblem.getLectureList();
             for (Lecture solvedLecture : solvedLectures) {
-                csvPrinter.printRecord(solvedLecture.toString(), solvedLecture.getEduClass().toString(), solvedLecture.getPeriod(), solvedLecture.getRoom());
+                Course course = solvedLecture.getCourse();
+                EduClass eduClass = solvedLecture.getEduClass();
+                Period period = solvedLecture.getPeriod();
+                Room room = solvedLecture.getRoom();
+                csvPrinter.printRecord(solvedLecture.getId(), course.getName(), course.getTeacher(),
+                        course.getLectureSize(), course.getClassNo(), solvedLecture.getLectureIndexInCourse(),
+                        eduClass.toString(), period, room);
             }
             csvPrinter.flush();
         }
 
-/*        // write object to file
-        FileOutputStream fos = new FileOutputStream("mybean_" + System.currentTimeMillis() + "_.ser");
+        // write object to file
+        FileOutputStream fos = new FileOutputStream("mybean_" + time + "_.ser");
         ObjectOutputStream oos = new ObjectOutputStream(fos);
         oos.writeObject(solvedProblem);
-        oos.close();*/
+        oos.close();
 
 /*        PlannerBenchmarkFactory benchmarkFactory = PlannerBenchmarkFactory.createFromSolverFactory(solverFactory);
         PlannerBenchmark plannerBenchmark = benchmarkFactory.buildPlannerBenchmark(problem);

@@ -1,6 +1,7 @@
 package domain;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Created by xcy on 2019/5/20.
@@ -43,5 +44,19 @@ public class Period implements Serializable {
 
     public void setIndex(int index) {
         this.index = index;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Period period = (Period) o;
+        return Objects.equals(day, period.day) &&
+                Objects.equals(timeslot, period.timeslot);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(day, timeslot);
     }
 }

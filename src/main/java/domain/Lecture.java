@@ -98,7 +98,7 @@ public class Lecture implements Comparable<Lecture>, Serializable {
 
     @Override
     public String toString() {
-        return "<" + course.toString() + "-" + lectureIndexInCourse + "(课时序号)>";
+        return "<" + course.toString() + "-" + lectureIndexInCourse + "(课时序号)-" + id + "(id)>";
     }
 
     @PlanningVariable(valueRangeProviderRefs = {"eduClassRange"})
@@ -139,7 +139,7 @@ public class Lecture implements Comparable<Lecture>, Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         Lecture lecture = (Lecture) o;
         return lectureIndexInCourse == lecture.lectureIndexInCourse &&
-                Objects.equals(course, lecture.course);
+                Objects.equals(course, lecture.course) && this.id == lecture.id;
     }
 
     @Override

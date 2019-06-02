@@ -68,24 +68,11 @@ public class Course implements Comparable<Course>, Serializable {
 
     @Override
     public String toString() {
-        return name + '-' + teacher + "-" + lectureSize + "(课时数)";
+        return name + '-' + teacher + "-" + lectureSize + "(课时数)-" + classNo + "(开班号)";
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Course course = (Course) o;
-        return Objects.equals(name, course.name) &&
-                Objects.equals(teacher, course.teacher);
-    }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, teacher);
-    }
 
-    /*
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -111,8 +98,6 @@ public class Course implements Comparable<Course>, Serializable {
             return this.classNo - o.classNo;
         return 0;
     }
-*/
-
     public List<EduClass> getPossibleEduClassList() {
         return eduClassListMap.get(this.name);
     }
@@ -124,6 +109,20 @@ public class Course implements Comparable<Course>, Serializable {
     public void setType(int type) {
         this.type = type;
     }
+/*
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Course course = (Course) o;
+        return Objects.equals(name, course.name) &&
+                Objects.equals(teacher, course.teacher);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, teacher);
+    }
 
     @Override
     public int compareTo(Course o) {
@@ -132,5 +131,5 @@ public class Course implements Comparable<Course>, Serializable {
         if(!this.teacher.equals(o.teacher))
             return this.teacher.compareTo(o.teacher);
         return 0;
-    }
+    }*/
 }

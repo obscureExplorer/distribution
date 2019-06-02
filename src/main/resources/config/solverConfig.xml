@@ -19,7 +19,7 @@
 
     <!-- Optimization algorithms configuration -->
     <termination>
-        <minutesSpentLimit>1</minutesSpentLimit>
+        <minutesSpentLimit>2</minutesSpentLimit>
 <!--        <termination>
             <secondsSpentLimit>10</secondsSpentLimit>
         </termination>-->
