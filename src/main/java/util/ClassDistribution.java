@@ -18,7 +18,7 @@ import java.util.stream.IntStream;
 /**
  * Created by xcy on 2019/5/29.
  */
-public class DataProcessing {
+public class ClassDistribution {
 
     public static void main(String[] args) throws IOException {
         InputStreamReader in = new InputStreamReader(new FileInputStream("英才学生选科数据.csv"), "gbk");
