@@ -43,4 +43,9 @@ public class EduClassConflict implements Serializable {
     public void setConflictCount(int conflictCount) {
         this.conflictCount = conflictCount;
     }
+
+    @Override
+    public String toString() {
+        return "<" + leftEduClass + "," + rightEduClass + ">";
+    }
 }
