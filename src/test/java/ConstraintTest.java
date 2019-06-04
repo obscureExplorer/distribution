@@ -1,12 +1,24 @@
+import domain.Course;
+import domain.Day;
+import domain.EduClass;
+import domain.Lecture;
+import domain.Period;
+import domain.Room;
+import domain.Teacher;
 import domain.TimeTablingProblem;
+import domain.Timeslot;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.optaplanner.core.api.solver.SolverFactory;
 import org.optaplanner.test.impl.score.buildin.hardsoft.HardSoftScoreVerifier;
-
+import util.Dataset;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by xcy on 2019/5/27.
@@ -21,97 +33,46 @@ public class ConstraintTest {
 
     @BeforeClass
     public static void beforeClass() throws IOException, ClassNotFoundException {
-        // read object from file
-        FileInputStream fis = new FileInputStream("mybean.ser");
-        ObjectInputStream ois = new ObjectInputStream(fis);
-        problem = (TimeTablingProblem) ois.readObject();
+        //读入初始数据
+        problem = new TimeTablingProblem();
+        Dataset.createDataset(problem,"时间地点2.csv","分班数据2.csv","教学资源2.csv");
+        //读入排课结果
+        InputStreamReader in = new InputStreamReader(new FileInputStream("result1.csv"), "gbk");
+        Iterable<CSVRecord> records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
+        List<Lecture> lectures = new ArrayList<>();
+        for (CSVRecord record : records) {
+            Day d = new Day();
+            d.setDayIndex(Integer.parseInt(record.get("day")));
+            Timeslot t = new Timeslot();
+            t.setTimeslotIndex(Integer.parseInt(record.get("timeslot")));
+            Period period = new Period();
+            period.setDay(d);
+            period.setTimeslot(t);
+            Room room = new Room();
+            room.setName(record.get("room"));
+            EduClass eduClass = new EduClass();
+            eduClass.setName(record.get("eduClass"));
+            eduClass.setType(Integer.parseInt(record.get("eduClassType")));
 
-     /*   List<Lecture> lectures = problem.getLectureList();
-        List<EduClass> eduClasses = problem.getEduClassList();
-        List<Period> periods = problem.getPeriodList();
-        List<Room> rooms = problem.getRoomList();
-        for (int i = 0; i < lectures.size(); i += 2) {
-            Lecture p = lectures.get(i);
-            Lecture n = lectures.get(i + 1);
-            if (i < 12) {
-                p.setEduClass(eduClasses.get(i / 6));
-                n.setEduClass(eduClasses.get(i / 6));
-            } else {
-                p.setEduClass(eduClasses.get(i / 2 - 4));
-                n.setEduClass(eduClasses.get(i / 2 - 4));
-            }
+            Course course = new Course();
+            Teacher teacher = new Teacher();
+            teacher.setName(record.get("teacher"));
+            course.setName(record.get("name"));
+            course.setTeacher(teacher);
+            course.setLectureSize(Integer.parseInt(record.get("lectureSize")));
+            course.setClassNo(Integer.parseInt(record.get("classNo")));
+            course.setType(Integer.parseInt(record.get("type")));
+
+            Lecture lecture = new Lecture();
+            lecture.setId(Long.parseLong(record.get("id")));
+            lecture.setPeriod(period);
+            lecture.setRoom(room);
+            lecture.setLectureIndexInCourse(Integer.parseInt(record.get("lectureIndexInCourse")));
+            lecture.setCourse(course);
+            lecture.setEduClass(eduClass);
+            lectures.add(lecture);
         }
-        //语文-张-1
-        lectures.get(0).setRoom(rooms.get(0));
-        lectures.get(1).setRoom(rooms.get(0));
-        lectures.get(0).setPeriod(periods.get(0));
-        lectures.get(1).setPeriod(periods.get(1));
-
-        //数学-王-1
-        lectures.get(2).setRoom(rooms.get(0));
-        lectures.get(3).setRoom(rooms.get(0));
-        lectures.get(2).setPeriod(periods.get(2));
-        lectures.get(3).setPeriod(periods.get(3));
-
-        //英语-黄-1
-        lectures.get(4).setRoom(rooms.get(0));
-        lectures.get(5).setRoom(rooms.get(0));
-        lectures.get(4).setPeriod(periods.get(4));
-        lectures.get(5).setPeriod(periods.get(5));
-
-        //数学-王-2
-        lectures.get(6).setRoom(rooms.get(1));
-        lectures.get(7).setRoom(rooms.get(1));
-        lectures.get(6).setPeriod(periods.get(0));
-        lectures.get(7).setPeriod(periods.get(1));
-
-        //英语-黄-2
-        lectures.get(8).setRoom(rooms.get(1));
-        lectures.get(9).setRoom(rooms.get(1));
-        lectures.get(8).setPeriod(periods.get(2));
-        lectures.get(9).setPeriod(periods.get(3));
-
-        //语文-张-2
-        lectures.get(10).setRoom(rooms.get(1));
-        lectures.get(11).setRoom(rooms.get(1));
-        lectures.get(10).setPeriod(periods.get(4));
-        lectures.get(11).setPeriod(periods.get(5));
-
-        //物理
-        lectures.get(12).setRoom(rooms.get(0));
-        lectures.get(13).setRoom(rooms.get(0));
-        lectures.get(12).setPeriod(periods.get(10));
-        lectures.get(13).setPeriod(periods.get(11));
-
-        //化学
-        lectures.get(14).setRoom(rooms.get(0));
-        lectures.get(15).setRoom(rooms.get(0));
-        lectures.get(14).setPeriod(periods.get(6));
-        lectures.get(15).setPeriod(periods.get(7));
-
-        //生物
-        lectures.get(16).setRoom(rooms.get(1));
-        lectures.get(17).setRoom(rooms.get(1));
-        lectures.get(16).setPeriod(periods.get(8));
-        lectures.get(17).setPeriod(periods.get(9));
-        //历史
-        lectures.get(18).setRoom(rooms.get(0));
-        lectures.get(19).setRoom(rooms.get(0));
-        lectures.get(18).setPeriod(periods.get(12));
-        lectures.get(19).setPeriod(periods.get(13));
-        //政治
-        lectures.get(20).setRoom(rooms.get(1));
-        lectures.get(21).setRoom(rooms.get(1));
-        lectures.get(20).setPeriod(periods.get(6));
-        lectures.get(21).setPeriod(periods.get(7));
-        //地理
-        lectures.get(22).setRoom(rooms.get(0));
-        lectures.get(23).setRoom(rooms.get(0));
-        lectures.get(22).setPeriod(periods.get(8));
-        lectures.get(23).setPeriod(periods.get(9));
-*/
-        ois.close();
-
+        problem.setLectureList(lectures);
     }
 
     @Test
@@ -120,8 +81,8 @@ public class ConstraintTest {
     }
 
     @Test
-    public void conflictingEduClassDifferentCourseInSamePeriod() {
-        scoreVerifier.assertHardWeight("conflictingEduClassDifferentCourseInSamePeriod", 0, problem);
+    public void conflictingEduClassInSamePeriod() {
+        scoreVerifier.assertHardWeight("conflictingEduClassInSamePeriod", 0, problem);
     }
 
     @Test
@@ -130,13 +91,13 @@ public class ConstraintTest {
     }
 
     @Test
-    public void administrativeClass(){
-        scoreVerifier.assertHardWeight("administrativeClass",0,problem);
+    public void administrativeClass() {
+        scoreVerifier.assertHardWeight("administrativeClass", 0, problem);
     }
 
     @Test
-    public void teachingClass(){
-        scoreVerifier.assertHardWeight("teachingClass",0,problem);
+    public void teachingClass() {
+        scoreVerifier.assertHardWeight("teachingClass", 0, problem);
     }
 
     @Test
@@ -145,7 +106,12 @@ public class ConstraintTest {
     }
 
     @Test
-    public void roomStability(){
+    public void roomStability() {
         scoreVerifier.assertHardWeight("roomStability", 0, problem);
     }
+
+/*    @Test
+    public void conflictingLecturesSameCourseInSamePeriod(){
+        scoreVerifier.assertHardWeight("conflictingLecturesSameCourseInSamePeriod", 0, problem);
+    }*/
 }
