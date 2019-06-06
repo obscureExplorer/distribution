@@ -6,8 +6,13 @@ import domain.Room;
 import domain.TimeTablingProblem;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore;
+import org.optaplanner.core.api.score.constraint.ConstraintMatch;
+import org.optaplanner.core.api.score.constraint.ConstraintMatchTotal;
 import org.optaplanner.core.api.solver.Solver;
 import org.optaplanner.core.api.solver.SolverFactory;
+import org.optaplanner.core.impl.score.director.ScoreDirector;
+import org.optaplanner.core.impl.score.director.ScoreDirectorFactory;
 import util.Dataset;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -16,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -28,7 +34,7 @@ public class Main {
         Solver<TimeTablingProblem> solver = solverFactory.buildSolver();
         // 初始化数据
         TimeTablingProblem problem = new TimeTablingProblem();
-        Dataset.createDataset(problem,"时间地点2.csv","分班数据2.csv","教学资源2.csv");
+        Dataset.createDataset(problem,"时间地点2.csv","分班数据2.csv","教学资源3.csv");
         // 开始排课
         TimeTablingProblem solvedProblem = solver.solve(problem);
         System.out.println(solvedProblem.getScore());
@@ -53,6 +59,21 @@ public class Main {
             }
             csvPrinter.flush();
         }
+
+       /* ScoreDirectorFactory<TimeTablingProblem> scoreDirectorFactory = solver.getScoreDirectorFactory();
+        try (ScoreDirector<TimeTablingProblem> guiScoreDirector = scoreDirectorFactory.buildScoreDirector()) {
+            Collection<ConstraintMatchTotal> constraintMatchTotals = guiScoreDirector.getConstraintMatchTotals();
+            for (ConstraintMatchTotal constraintMatchTotal : constraintMatchTotals) {
+                String constraintName = constraintMatchTotal.getConstraintName();
+                // The score impact of that constraint
+                HardSoftScore totalScore = (HardSoftScore) constraintMatchTotal.getScore();
+                for (ConstraintMatch constraintMatch : constraintMatchTotal.getConstraintMatchSet()) {
+                    List<Object> justificationList = constraintMatch.getJustificationList();
+                    HardSoftScore score = (HardSoftScore) constraintMatch.getScore();
+                    System.out.println(score.toShortString() + "[" + "]");
+                }
+            }
+        }*/
 /*
         //基准测试
         PlannerBenchmarkFactory benchmarkFactory = PlannerBenchmarkFactory.createFromSolverFactory(solverFactory);

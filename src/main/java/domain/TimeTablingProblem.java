@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -126,7 +125,8 @@ public class TimeTablingProblem implements Serializable {
                         .filter(rightStudents::contains)
                         .collect(Collectors.counting());
                 if (conflictCount > 0)
-                    eduClassConflictList.add(new EduClassConflict(leftEduClass, rightEduClass, (int) conflictCount));
+                   eduClassConflictList.add(new EduClassConflict(leftEduClass, rightEduClass, (int) conflictCount));
+                    //eduClassConflictList.add(new EduClassConflict(leftEduClass, rightEduClass, 1));
             }
         }
         //与自身构成冲突
@@ -173,6 +173,7 @@ public class TimeTablingProblem implements Serializable {
                 }
             }
         }
+       // this.courseList.forEach(c -> courseConflictList.add( new CourseConflict(c,c,1)));
 
         return courseConflictList;
     }

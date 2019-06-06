@@ -21,10 +21,10 @@ public class Course implements Comparable<Course>, Serializable {
     private int classNo;
     //课时数
     private int lectureSize;
-    //0必修，1选修
+    //0必修，1选考，2学考
     private int type;
 
-    private Map<String,List<EduClass>> eduClassListMap;
+    private Map<String, List<EduClass>> eduClassListMap;
 
     public Map<String, List<EduClass>> getEduClassListMap() {
         return eduClassListMap;
@@ -68,9 +68,19 @@ public class Course implements Comparable<Course>, Serializable {
 
     @Override
     public String toString() {
-        return name + '-' + teacher + "-" + lectureSize + "(课时数)-" + classNo + "(开班号)";
+        String type;
+        switch (this.type) {
+            case 1:
+                type = "选考";
+                break;
+            case 2:
+                type = "会考";
+                break;
+            default:
+                type = "行政班";
+        }
+        return name + '-' + teacher + "-" + lectureSize + "(课时数)-" + classNo + "(开班号)" + "-" + type;
     }
-
 
 
     @Override
@@ -78,28 +88,34 @@ public class Course implements Comparable<Course>, Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Course course = (Course) o;
-        return classNo == course.classNo &&
+        //return classNo == course.classNo &&
+        return type == course.type &&
                 Objects.equals(name, course.name) &&
                 Objects.equals(teacher, course.teacher);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, teacher, classNo);
+       // return Objects.hash(name, teacher, classNo);
+        return Objects.hash(name, teacher,type);
     }
 
     @Override
     public int compareTo(Course o) {
-        if(!this.name.equals(o.name))
+        if (!this.name.equals(o.name))
             return this.name.compareTo(o.name);
-        if(!this.teacher.equals(o.teacher))
+        if (!this.teacher.equals(o.teacher))
             return this.teacher.compareTo(o.teacher);
-        if(this.classNo != o.classNo)
-            return this.classNo - o.classNo;
+/*        if (this.classNo != o.classNo)
+            return this.classNo - o.classNo;*/
+        if (this.type != o.type)
+            return this.type - o.type;
         return 0;
     }
+
     public List<EduClass> getPossibleEduClassList() {
-        return eduClassListMap.get(this.name);
+       return eduClassListMap.get(type != 2 ? this.name : "会考" + this.name);
+      //  return eduClassListMap.get(this.name);
     }
 
     public int getType() {

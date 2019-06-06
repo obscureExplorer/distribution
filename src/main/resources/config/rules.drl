@@ -17,39 +17,33 @@ import accumulate accumulatefunction.ClassCourseCheck check2;
 global HardSoftScoreHolder scoreHolder;
 
 // 强约束条件
-// 同个时间点，同一个老师的课程之间的冲突
+// 同个时间点，不同课程的同一个老师之间的冲突
 rule "conflictingLecturesDifferentCourseInSamePeriod"
     when
         $courseConflict : CourseConflict($leftCourse : leftCourse, $rightCourse : rightCourse)
-        $leftLecture : Lecture(course == $leftCourse, $period : period, period != null,$leftId:id)
+        $leftLecture : Lecture(course == $leftCourse, $period : period, period != null, $leftId: id)
         $rightLecture : Lecture(course == $rightCourse, period == $period, id > $leftId)
     then
         scoreHolder.addHardConstraintMatch(kcontext, - $courseConflict.getConflictCount());
 end
+// 同个时间点，同一个课程的同一个老师之间的冲突
+rule "conflictingLecturesSameCourseInSamePeriod"
+    when
+        Lecture($leftId : id, $leftCourse : course, $period : period, period != null)
+        Lecture(course == $leftCourse, period == $period, id > $leftId)
+    then
+        scoreHolder.addHardConstraintMatch(kcontext, -1 );
+end
 
-// 同个时间点，有上课的班级之间的冲突
-rule "conflictingEduClassDifferentCourseInSamePeriod"
+// 同个时间点，有上课的班级两两之间存在共同的学生，则该对班级存在冲突
+rule "conflictingEduClassInSamePeriod"
     when
         $eduClassConflict : EduClassConflict($leftEduClass : leftEduClass,$rightEduClass : rightEduClass)
-        $leftLecture : Lecture(eduClass == $leftEduClass, $period : period, period != null)
+        $leftLecture : Lecture(eduClass == $leftEduClass, $period : period, period != null, $leftId : id)
         $rightLecture : Lecture(eduClass == $rightEduClass, period == $period, this != $leftLecture)
     then
         scoreHolder.addHardConstraintMatch(kcontext, - $eduClassConflict.getConflictCount());
 end
-
-
-// 同个时间点，有上课的班级之间的冲突
-/*rule "conflictingEduClassDifferentCourseInSamePeriod"
-    when
-        $eduClassConflict : EduClassConflict($leftEduClass : leftEduClass,$rightEduClass : rightEduClass,leftEduClass.name =="行政班8",rightEduClass.name =="行政班8")
-       // $eduClassConflict : EduClassConflict(leftEduClass == rightEduClass,$leftEduClass : leftEduClass,$rightEduClass : rightEduClass)
-        $leftLecture : Lecture(eduClass == $leftEduClass, $period : period, period != null,$leftId:id)
-        $rightLecture : Lecture(eduClass == $rightEduClass,period == $period, this != $leftLecture ,id > $leftId)
-    then
-        System.out.println($leftLecture + " " + $rightLecture +" " +$period);
-        //System.out.println("r:"+$rightLecture +" " + $period2);
-end*/
-
 
 // 同一个时间，同一个地点只能由一个老师\班级在上课
 rule "roomOccupancy"
@@ -78,7 +72,16 @@ end
 //教学班需要要有对应的该老师来上课
 rule "teachingClass"
     when
-        $teachingClass : EduClass(type > 0)
+        $teachingClass : EduClass(type == 1)
+        accumulate($lectures :Lecture(eduClass == $teachingClass,room != null,period != null); $result : check2($lectures); $result != 0)
+    then
+        scoreHolder.addHardConstraintMatch(kcontext, $result);
+end
+
+//教学班需要要有对应的该老师来上课
+rule "teachingClass2"
+    when
+        $teachingClass : EduClass(type == 2)
         accumulate($lectures :Lecture(eduClass == $teachingClass,room != null,period != null); $result : check2($lectures); $result != 0)
     then
         scoreHolder.addHardConstraintMatch(kcontext, $result);

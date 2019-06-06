@@ -28,7 +28,7 @@ import java.util.stream.IntStream;
  */
 public class Dataset {
 
-    public static void createDataset(TimeTablingProblem problem,String timeAndRoomFilePath,String classDistributionFilePath,String resourceFilePath) throws IOException {
+    public static void createDataset(TimeTablingProblem problem, String timeAndRoomFilePath, String classDistributionFilePath, String resourceFilePath) throws IOException {
         //设置时间地点
         InputStreamReader in = new InputStreamReader(new FileInputStream(timeAndRoomFilePath), "gbk");
         Iterable<CSVRecord> records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
@@ -83,8 +83,6 @@ public class Dataset {
         for (CSVRecord csvRecord : records) {
             String subjectName = csvRecord.get("subjectName");
             String teacherName = csvRecord.get("teacherName");
-            relationMap.putIfAbsent(subjectName, new ArrayList<>());
-
             int classNo = Integer.parseInt(csvRecord.get("classNo"));
             int lectureSize = Integer.parseInt(csvRecord.get("lectureSize"));
             int type = Integer.parseInt(csvRecord.get("type"));
@@ -97,6 +95,10 @@ public class Dataset {
             c.setClassNo(classNo);
             c.setType(type);
             courseList.add(c);
+
+            String key = type == 2 ? "会考" + subjectName : subjectName;
+            //String key = subjectName;
+            relationMap.putIfAbsent(key, new ArrayList<>());
         }
         problem.setCourseList(courseList);
 
@@ -105,7 +107,8 @@ public class Dataset {
         List<Lecture> lectures = new ArrayList<>();
         for (int i = 0; i < courseList.size(); i++) {
             Course course = courseList.get(i);
-            for (int j = 0; j < course.getLectureSize(); j++) {
+            int total = course.getClassNo() * course.getLectureSize();
+            for (int j = 0; j < total; j++) {
                 Lecture lecture = new Lecture();
                 lecture.setId((long) (l++));
                 lecture.setLectureIndexInCourse(j + 1);
@@ -144,12 +147,18 @@ public class Dataset {
         ).collect(Collectors.toList());
         problem.setEduClassList(eduClassList);
 
-        //大于0的都是教学班
-        eduClassList.stream().filter(c -> c.getType() > 0).forEach(c -> relationMap.get(c.getSubjectName()).add(c));
-        List<EduClass> administrativeClass = eduClassList.stream().filter(c -> c.getType() == 0).collect(Collectors.toList());
-        relationMap.keySet().stream().filter(key -> relationMap.get(key).size() == 0).forEach(key -> {
-            relationMap.put(key, administrativeClass);
-        });
+        //选考班
+        eduClassList.stream().filter(c -> c.getType() ==1 ).forEach(c -> relationMap.get(c.getSubjectName()).add(c));
+        //学考班
+        eduClassList.stream().filter(c -> c.getType() == 2 ).forEach(c -> relationMap.get("会考" + c.getSubjectName()).add(c));
+
+        //eduClassList.stream().filter(c -> c.getType() > 0 ).forEach(c -> relationMap.get(c.getSubjectName()).add(c));
+
+
+        List<EduClass> administrativeClass = eduClassList.stream().filter(c -> c.getType() == 0)
+                .collect(Collectors.toList());
+        relationMap.keySet().stream().filter(key -> relationMap.get(key).size() == 0)
+                .forEach(key -> relationMap.put(key, administrativeClass));
 
         courseList.forEach(t -> t.setEduClassListMap(relationMap));
     }

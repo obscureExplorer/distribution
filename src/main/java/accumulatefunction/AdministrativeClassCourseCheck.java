@@ -65,6 +65,10 @@ public class AdministrativeClassCourseCheck implements org.kie.api.runtime.rule.
     @Override
     public Object getResult(CourseCheckData courseCheckData) throws Exception {
         Map<Object, Object> map = courseCheckData.map;
+        //说明该班级没有排课，返回一个更高的惩罚分值
+        if(map.size() == 0){
+            return -20;
+        }
         List<Course> courses = new ArrayList<>();
         map.keySet().forEach(t -> courses.add((Course) t));
         courses.sort(Course::compareTo);
@@ -89,8 +93,9 @@ public class AdministrativeClassCourseCheck implements org.kie.api.runtime.rule.
             }
             last = c;
         }
-        //对于行政班--count应该是3
+        //对于行政班--count应该是6
         return score + (count - 6) * 10;
+       // return score + (count - 6);
     }
 
     @Override

@@ -35,16 +35,19 @@ public class ConstraintTest {
     public static void beforeClass() throws IOException, ClassNotFoundException {
         //读入初始数据
         problem = new TimeTablingProblem();
-        Dataset.createDataset(problem,"时间地点2.csv","分班数据2.csv","教学资源2.csv");
+        Dataset.createDataset(problem,"时间地点2.csv","分班数据2.csv","教学资源3.csv");
         //读入排课结果
-        InputStreamReader in = new InputStreamReader(new FileInputStream("result1.csv"), "gbk");
+        InputStreamReader in = new InputStreamReader(new FileInputStream("result_2019-06-06-14-22-50.csv"), "gbk");
         Iterable<CSVRecord> records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
         List<Lecture> lectures = new ArrayList<>();
         for (CSVRecord record : records) {
+            String day =record.get("period").split("_")[0];
+            String timeslot = record.get("period").split("_")[1];
+
             Day d = new Day();
-            d.setDayIndex(Integer.parseInt(record.get("day")));
+            d.setDayIndex(Integer.parseInt(day));
             Timeslot t = new Timeslot();
-            t.setTimeslotIndex(Integer.parseInt(record.get("timeslot")));
+            t.setTimeslotIndex(Integer.parseInt(timeslot));
             Period period = new Period();
             period.setDay(d);
             period.setTimeslot(t);
@@ -101,6 +104,11 @@ public class ConstraintTest {
     }
 
     @Test
+    public void teachingClass2() {
+        scoreVerifier.assertHardWeight("teachingClass2", 0, problem);
+    }
+
+    @Test
     public void sameRoom() {
         scoreVerifier.assertHardWeight("sameRoom", 0, problem);
     }
@@ -110,8 +118,8 @@ public class ConstraintTest {
         scoreVerifier.assertHardWeight("roomStability", 0, problem);
     }
 
-/*    @Test
+    @Test
     public void conflictingLecturesSameCourseInSamePeriod(){
         scoreVerifier.assertHardWeight("conflictingLecturesSameCourseInSamePeriod", 0, problem);
-    }*/
+    }
 }
