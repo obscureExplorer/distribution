@@ -19,7 +19,9 @@
 
     <!-- Optimization algorithms configuration -->
     <termination>
-        <minutesSpentLimit>2</minutesSpentLimit>
+        <minutesSpentLimit>5</minutesSpentLimit>
+        <!--<bestScoreFeasible>true</bestScoreFeasible>-->
+
 <!--        <termination>
             <secondsSpentLimit>10</secondsSpentLimit>
         </termination>-->
@@ -33,18 +35,23 @@
      </localSearch>-->
 
     <constructionHeuristic>
-        <constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>
-        <!--<constructionHeuristicType>FIRST_FIT</constructionHeuristicType>-->
+        <constructionHeuristicType>FIRST_FIT</constructionHeuristicType>
     </constructionHeuristic>
      <localSearch>
        <unionMoveSelector>
          <changeMoveSelector/>
+<!--           <pillarChangeMoveSelector>
+               <valueSelector variableName="eduClass"/>
+           </pillarChangeMoveSelector>
+           <pillarSwapMoveSelector>
+               <variableNameInclude>eduClass</variableNameInclude>
+           </pillarSwapMoveSelector>-->
          <swapMoveSelector>
-           <filterClass>filter.DifferentCourseSwapMoveFilter</filterClass>
+           <filterClass>filter.DifferentEduClassSwapMoveFilter</filterClass>
          </swapMoveSelector>
        </unionMoveSelector>
        <acceptor>
-         <lateAcceptanceSize>800</lateAcceptanceSize>
+         <lateAcceptanceSize>600</lateAcceptanceSize>
        </acceptor>
        <forager>
          <acceptedCountLimit>4</acceptedCountLimit>

@@ -1,15 +1,6 @@
 package util;
 
-import domain.Course;
-import domain.Day;
-import domain.EduClass;
-import domain.Lecture;
-import domain.Period;
-import domain.Room;
-import domain.Student;
-import domain.Teacher;
-import domain.TimeTablingProblem;
-import domain.Timeslot;
+import domain.*;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
@@ -70,54 +61,6 @@ public class Dataset {
         problem.setPeriodList(periodList);
         problem.setRoomList(rooms);
 
-        //设置课程数据
-        in = new InputStreamReader(new FileInputStream(resourceFilePath), "gbk");
-        records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
-        List<Course> courseList = new ArrayList<>();
-
-        //设置课程和班级之间的对应关系
-        //行政班——语数英
-        //物理教学班——物理
-        Map<String, List<EduClass>> relationMap = new HashMap<>();
-
-        for (CSVRecord csvRecord : records) {
-            String subjectName = csvRecord.get("subjectName");
-            String teacherName = csvRecord.get("teacherName");
-            int classNo = Integer.parseInt(csvRecord.get("classNo"));
-            int lectureSize = Integer.parseInt(csvRecord.get("lectureSize"));
-            int type = Integer.parseInt(csvRecord.get("type"));
-            Course c = new Course();
-            c.setName(subjectName);
-            Teacher teacher = new Teacher();
-            teacher.setName(teacherName);
-            c.setTeacher(teacher);
-            c.setLectureSize(lectureSize);
-            c.setClassNo(classNo);
-            c.setType(type);
-            courseList.add(c);
-
-            String key = type == 2 ? "会考" + subjectName : subjectName;
-            //String key = subjectName;
-            relationMap.putIfAbsent(key, new ArrayList<>());
-        }
-        problem.setCourseList(courseList);
-
-        //构造lectures数据
-        int l = 0;
-        List<Lecture> lectures = new ArrayList<>();
-        for (int i = 0; i < courseList.size(); i++) {
-            Course course = courseList.get(i);
-            int total = course.getClassNo() * course.getLectureSize();
-            for (int j = 0; j < total; j++) {
-                Lecture lecture = new Lecture();
-                lecture.setId((long) (l++));
-                lecture.setLectureIndexInCourse(j + 1);
-                lecture.setCourse(course);
-                lectures.add(lecture);
-            }
-        }
-        problem.setLectureList(lectures);
-
 
         //设置分班数据
         in = new InputStreamReader(new FileInputStream(classDistributionFilePath), "gbk");
@@ -147,19 +90,26 @@ public class Dataset {
         ).collect(Collectors.toList());
         problem.setEduClassList(eduClassList);
 
-        //选考班
-        eduClassList.stream().filter(c -> c.getType() ==1 ).forEach(c -> relationMap.get(c.getSubjectName()).add(c));
-        //学考班
-        eduClassList.stream().filter(c -> c.getType() == 2 ).forEach(c -> relationMap.get("会考" + c.getSubjectName()).add(c));
+        int k = 0;
+        List<RealEduClass> realEduClassList = new ArrayList<>();
+        for (EduClass eduClass : eduClassList) {
+            int type = eduClass.getType();
+            int size;
+            if(type == 0)
+                size = 22;
+            else if(type == 1)
+                size = 4;
+            else
+                size = 2;
+            for (int i = 0; i < size; i++) {
+                RealEduClass realEduClass = new RealEduClass();
+                realEduClass.setEduClass(eduClass);
+                realEduClass.setIndex(i);
+                realEduClassList.add(realEduClass);
+                realEduClass.setId(++k);
+            }
 
-        //eduClassList.stream().filter(c -> c.getType() > 0 ).forEach(c -> relationMap.get(c.getSubjectName()).add(c));
-
-
-        List<EduClass> administrativeClass = eduClassList.stream().filter(c -> c.getType() == 0)
-                .collect(Collectors.toList());
-        relationMap.keySet().stream().filter(key -> relationMap.get(key).size() == 0)
-                .forEach(key -> relationMap.put(key, administrativeClass));
-
-        courseList.forEach(t -> t.setEduClassListMap(relationMap));
+        }
+        problem.setRealEduClassList(realEduClassList);
     }
 }

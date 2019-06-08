@@ -70,7 +70,7 @@
         <unionMoveSelector>
           <changeMoveSelector/>
           <swapMoveSelector>
-            <filterClass>filter.DifferentCourseSwapMoveFilter</filterClass>
+            <filterClass>filter.DifferentEduClassSwapMoveFilter</filterClass>
           </swapMoveSelector>
         </unionMoveSelector>
         <acceptor>
@@ -92,7 +92,7 @@
         <unionMoveSelector>
           <changeMoveSelector/>
           <swapMoveSelector>
-            <filterClass>filter.DifferentCourseSwapMoveFilter</filterClass>
+            <filterClass>filter.DifferentEduClassSwapMoveFilter</filterClass>
           </swapMoveSelector>
         </unionMoveSelector>
         <acceptor>
@@ -114,7 +114,7 @@
         <unionMoveSelector>
           <changeMoveSelector/>
           <swapMoveSelector>
-            <filterClass>filter.DifferentCourseSwapMoveFilter</filterClass>
+            <filterClass>filter.DifferentEduClassSwapMoveFilter</filterClass>
           </swapMoveSelector>
         </unionMoveSelector>
         <acceptor>

@@ -44,11 +44,8 @@ public class TimeTablingProblem implements Serializable {
     @ProblemFactCollectionProperty
     private List<EduClass> eduClassList;
 
-    @ProblemFactCollectionProperty
-    private List<Course> courseList;
-
     @PlanningEntityCollectionProperty
-    private List<Lecture> lectureList;
+    private List<RealEduClass> realEduClassList;
 
     @PlanningScore
     private HardSoftScore score;
@@ -77,28 +74,12 @@ public class TimeTablingProblem implements Serializable {
         this.periodList = periodList;
     }
 
-    public List<Lecture> getLectureList() {
-        return lectureList;
-    }
-
-    public void setLectureList(List<Lecture> lectureList) {
-        this.lectureList = lectureList;
-    }
-
     public HardSoftScore getScore() {
         return score;
     }
 
     public void setScore(HardSoftScore score) {
         this.score = score;
-    }
-
-    public List<Course> getCourseList() {
-        return courseList;
-    }
-
-    public void setCourseList(List<Course> courseList) {
-        this.courseList = courseList;
     }
 
     public List<EduClass> getEduClassList() {
@@ -129,10 +110,10 @@ public class TimeTablingProblem implements Serializable {
                     //eduClassConflictList.add(new EduClassConflict(leftEduClass, rightEduClass, 1));
             }
         }
-        //与自身构成冲突
+/*        //与自身构成冲突
         for (EduClass eduClass : eduClassList) {
              eduClassConflictList.add(new EduClassConflict(eduClass, eduClass, eduClass.getStudents().size()));
-        }
+        }*/
 
         if(!Files.exists(Paths.get("classConflict.csv"))){
             try (
@@ -155,34 +136,19 @@ public class TimeTablingProblem implements Serializable {
         return eduClassConflictList;
     }
 
-    @ProblemFactCollectionProperty
-    private List<CourseConflict> calculateCourseConflict() {
-        List<CourseConflict> courseConflictList = new ArrayList<>();
-
-        int size = courseList.size();
-        for (int i = 0; i < size - 1; i++) {
-            for (int j = i + 1; j < size; j++) {
-                Course leftCourse = courseList.get(i);
-                Course rightCourse = courseList.get(j);
-                int conflictCount = 0;
-                if (leftCourse.getTeacher().equals(rightCourse.getTeacher())) {
-                    conflictCount++;
-                }
-                if (conflictCount > 0) {
-                    courseConflictList.add(new CourseConflict(leftCourse, rightCourse, conflictCount));
-                }
-            }
-        }
-       // this.courseList.forEach(c -> courseConflictList.add( new CourseConflict(c,c,1)));
-
-        return courseConflictList;
-    }
-
     public List<Room> getRoomList() {
         return roomList;
     }
 
     public void setRoomList(List<Room> roomList) {
         this.roomList = roomList;
+    }
+
+    public List<RealEduClass> getRealEduClassList() {
+        return realEduClassList;
+    }
+
+    public void setRealEduClassList(List<RealEduClass> realEduClassList) {
+        this.realEduClassList = realEduClassList;
     }
 }
