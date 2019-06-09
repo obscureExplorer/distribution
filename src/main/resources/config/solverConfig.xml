@@ -19,11 +19,12 @@
 
     <!-- Optimization algorithms configuration -->
     <termination>
-        <minutesSpentLimit>2</minutesSpentLimit>
+        <minutesSpentLimit>5</minutesSpentLimit>
 <!--        <termination>
             <secondsSpentLimit>10</secondsSpentLimit>
         </termination>-->
-        <!--<bestScoreLimit>0hard/-100soft</bestScoreLimit>-->
+
+        <bestScoreFeasible>true</bestScoreFeasible>
     </termination>
 
 <!--    <localSearch>

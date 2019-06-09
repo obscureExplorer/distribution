@@ -102,18 +102,42 @@ public class Dataset {
         }
         problem.setCourseList(courseList);
 
+        //设置课程数据
+        Map<Course,List<EduClass>> classDistribution = new HashMap<>();
+        in = new InputStreamReader(new FileInputStream("classDistribution.csv"), "gbk");
+        records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
+        for (CSVRecord r : records) {
+            Course c = new Course();
+            c.setName(r.get("subject"));
+            Teacher t = new Teacher();
+            t.setName(r.get("teacher"));
+            c.setTeacher(t);
+            c.setType(Integer.parseInt(r.get("type")));
+            EduClass e = new EduClass();
+            e.setName(r.get("eduClass"));
+            e.setType(Integer.parseInt(r.get("type")));
+            if(!classDistribution.containsKey(c)){
+                classDistribution.put(c,new ArrayList<>());
+            }
+            classDistribution.get(c).add(e);
+        }
+
         //构造lectures数据
         int l = 0;
         List<Lecture> lectures = new ArrayList<>();
         for (int i = 0; i < courseList.size(); i++) {
             Course course = courseList.get(i);
-            int total = course.getClassNo() * course.getLectureSize();
-            for (int j = 0; j < total; j++) {
-                Lecture lecture = new Lecture();
-                lecture.setId((long) (l++));
-                lecture.setLectureIndexInCourse(j + 1);
-                lecture.setCourse(course);
-                lectures.add(lecture);
+            int classNo = course.getClassNo();
+            int lectureSize = course.getLectureSize();
+            for (int i1 = 0; i1 < classNo; i1++) {
+                for (int j = 0; j < lectureSize; j++) {
+                    Lecture lecture = new Lecture();
+                    lecture.setId((long) (l++));
+                    lecture.setLectureIndexInCourse(j + 1);
+                    lecture.setCourse(course);
+                    lecture.setEduClass(classDistribution.get(course).get(i1));
+                    lectures.add(lecture);
+                }
             }
         }
         problem.setLectureList(lectures);

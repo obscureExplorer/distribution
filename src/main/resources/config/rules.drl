@@ -10,8 +10,6 @@ import domain.Teacher;
 import domain.Timeslot;
 import domain.EduClass;
 import domain.Room;
-import accumulate accumulatefunction.AdministrativeClassCourseCheck check;
-import accumulate accumulatefunction.ClassCourseCheck check2;
 
 
 global HardSoftScoreHolder scoreHolder;
@@ -58,35 +56,6 @@ rule "roomOccupancy"
 //        System.out.println("$2:" + $L2 + "," + $L2.getPeriod() + "," + $L2.getRoom());
         scoreHolder.addHardConstraintMatch(kcontext, -1);
 end
-
-
-//行政班需要有除了选修以外的必修课，而且是同一个老师、课时数正确
-rule "administrativeClass"
-    when
-       $administrativeClass : EduClass(type == 0)
-       accumulate($lectures :Lecture(eduClass == $administrativeClass,room != null,period != null); $result : check($lectures); $result != 0)
-    then
-        scoreHolder.addHardConstraintMatch(kcontext, $result);
-end
-
-//教学班需要要有对应的该老师来上课
-rule "teachingClass"
-    when
-        $teachingClass : EduClass(type == 1)
-        accumulate($lectures :Lecture(eduClass == $teachingClass,room != null,period != null); $result : check2($lectures); $result != 0)
-    then
-        scoreHolder.addHardConstraintMatch(kcontext, $result);
-end
-
-//教学班需要要有对应的该老师来上课
-rule "teachingClass2"
-    when
-        $teachingClass : EduClass(type == 2)
-        accumulate($lectures :Lecture(eduClass == $teachingClass,room != null,period != null); $result : check2($lectures); $result != 0)
-    then
-        scoreHolder.addHardConstraintMatch(kcontext, $result);
-end
-
 
 rule "sameRoom"
     when

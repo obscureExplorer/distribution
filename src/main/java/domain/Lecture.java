@@ -101,7 +101,6 @@ public class Lecture implements Comparable<Lecture>, Serializable {
         return "<" + course.toString() + "-" + lectureIndexInCourse + "(课时序号)-" + id + "(id)>";
     }
 
-    @PlanningVariable(valueRangeProviderRefs = {"eduClassRange"})
     public EduClass getEduClass() {
         return eduClass;
     }
