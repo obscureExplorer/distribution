@@ -42,3 +42,18 @@ rule "roomOccupancy"
     then
         scoreHolder.addHardConstraintMatch(kcontext, -1);
 end
+
+// RoomStability: All lectures of a course should be given in the same room.
+// Each distinct room used for the lectures of a course, but the first, counts as 1 point of penalty.
+rule "roomStability"
+    when
+        $eduClass : EduClass()
+        accumulate(
+            $room : Room()
+            and exists RealEduClass(eduClass == $eduClass, room == $room);
+            $roomCount : count($room);
+            $roomCount > 1
+        )
+    then
+        scoreHolder.addSoftConstraintMatch(kcontext, -($roomCount.intValue() - 1));
+end
