@@ -20,10 +20,10 @@
     <!-- Optimization algorithms configuration -->
     <termination>
         <minutesSpentLimit>2</minutesSpentLimit>
+        <bestScoreFeasible>true</bestScoreFeasible>
 <!--        <termination>
             <secondsSpentLimit>10</secondsSpentLimit>
         </termination>-->
-        <!--<bestScoreLimit>0hard/-100soft</bestScoreLimit>-->
     </termination>
 
 <!--    <localSearch>
