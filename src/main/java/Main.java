@@ -34,7 +34,7 @@ public class Main {
         Solver<TimeTablingProblem> solver = solverFactory.buildSolver();
         // 初始化数据
         TimeTablingProblem problem = new TimeTablingProblem();
-        Dataset.createDataset(problem,"时间地点2.csv","分班数据2.csv","教学资源3.csv");
+        Dataset.createDataset(problem,"时间地点1.csv","分班数据1.csv","教学资源1.csv");
         // 开始排课
         TimeTablingProblem solvedProblem = solver.solve(problem);
         System.out.println(solvedProblem.getScore());
