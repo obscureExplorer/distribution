@@ -28,9 +28,9 @@ import java.util.stream.IntStream;
  */
 public class Dataset {
 
-    public static void createDataset(TimeTablingProblem problem, String timeAndRoomFilePath, String classDistributionFilePath, String resourceFilePath) throws IOException {
+    public static void createDataset(TimeTablingProblem problem, String parentFolder) throws IOException {
         //设置时间地点
-        InputStreamReader in = new InputStreamReader(new FileInputStream(timeAndRoomFilePath), "gbk");
+        InputStreamReader in = new InputStreamReader(new FileInputStream(parentFolder + "/时间地点.csv"), "gbk");
         Iterable<CSVRecord> records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
         CSVRecord record = records.iterator().next();
         int dayNum = Integer.parseInt(record.get("day"));
@@ -71,7 +71,7 @@ public class Dataset {
         problem.setRoomList(rooms);
 
         //设置课程数据
-        in = new InputStreamReader(new FileInputStream(resourceFilePath), "gbk");
+        in = new InputStreamReader(new FileInputStream(parentFolder + "/教学资源.csv"), "gbk");
         records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
         List<Course> courseList = new ArrayList<>();
 
@@ -120,7 +120,7 @@ public class Dataset {
 
 
         //设置分班数据
-        in = new InputStreamReader(new FileInputStream(classDistributionFilePath), "gbk");
+        in = new InputStreamReader(new FileInputStream(parentFolder +"/分班数据.csv"), "gbk");
         records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
         Map<EduClass, List<Student>> classMap = new HashMap<>();
         for (CSVRecord csvRecord : records) {

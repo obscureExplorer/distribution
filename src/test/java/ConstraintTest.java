@@ -35,9 +35,9 @@ public class ConstraintTest {
     public static void beforeClass() throws IOException, ClassNotFoundException {
         //读入初始数据
         problem = new TimeTablingProblem();
-        Dataset.createDataset(problem,"时间地点2.csv","分班数据2.csv","教学资源3.csv");
+        Dataset.createDataset(problem,"dataset/1");
         //读入排课结果
-        InputStreamReader in = new InputStreamReader(new FileInputStream("result_2019-06-06-14-22-50.csv"), "gbk");
+        InputStreamReader in = new InputStreamReader(new FileInputStream("result_2019-06-11-16-24-37.csv"), "gbk");
         Iterable<CSVRecord> records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
         List<Lecture> lectures = new ArrayList<>();
         for (CSVRecord record : records) {
@@ -91,31 +91,6 @@ public class ConstraintTest {
     @Test
     public void roomOccupancy() {
         scoreVerifier.assertHardWeight("roomOccupancy", 0, problem);
-    }
-
-    @Test
-    public void administrativeClass() {
-        scoreVerifier.assertHardWeight("administrativeClass", 0, problem);
-    }
-
-    @Test
-    public void teachingClass() {
-        scoreVerifier.assertHardWeight("teachingClass", 0, problem);
-    }
-
-    @Test
-    public void teachingClass2() {
-        scoreVerifier.assertHardWeight("teachingClass2", 0, problem);
-    }
-
-    @Test
-    public void sameRoom() {
-        scoreVerifier.assertHardWeight("sameRoom", 0, problem);
-    }
-
-    @Test
-    public void roomStability() {
-        scoreVerifier.assertHardWeight("roomStability", 0, problem);
     }
 
     @Test
