@@ -7,7 +7,7 @@ import java.util.Objects;
 /**
  * Created by xcy on 2019/5/20.
  */
-public class EduClass implements Serializable {
+public class EduClass implements Serializable,Comparable<EduClass> {
     private static final long serialVersionUID = 2490355394270166676L;
 
     private Integer id;
@@ -87,4 +87,10 @@ public class EduClass implements Serializable {
     public void setSubjectName(String subjectName) {
         this.subjectName = subjectName;
     }
+
+    @Override
+    public int compareTo(EduClass o) {
+        return o.getType() - this.getType();
+    }
+
 }

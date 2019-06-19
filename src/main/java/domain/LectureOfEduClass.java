@@ -4,43 +4,36 @@ import org.optaplanner.core.api.domain.entity.PlanningEntity;
 import org.optaplanner.core.api.domain.entity.PlanningPin;
 import org.optaplanner.core.api.domain.valuerange.ValueRangeProvider;
 import org.optaplanner.core.api.domain.variable.PlanningVariable;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
+
 
 /**
  * Created by xcy on 2019/5/20.
  */
 @PlanningEntity(difficultyWeightFactoryClass = LectureDifficultyWeightFactory.class)
-public class Lecture implements Comparable<Lecture>, Serializable {
+public class LectureOfEduClass implements Comparable<LectureOfEduClass>, Serializable {
 
     private static final long serialVersionUID = 5281845023098929368L;
 
     private Long id;
-    private Course course;
-    private int lectureIndexInCourse;
+    private int lectureIndex;
     private boolean pinned;
+    private EduClass eduClass;
+    private Subject subject;
 
     // Planning variables: changes during planning, between score calculations.
     private Period period;
     private Room room;
-    private EduClass eduClass;
+    private Teacher teacher;
 
-    public Course getCourse() {
-        return course;
+    public int getLectureIndex() {
+        return lectureIndex;
     }
 
-    public void setCourse(Course course) {
-        this.course = course;
-    }
-
-    public int getLectureIndexInCourse() {
-        return lectureIndexInCourse;
-    }
-
-    public void setLectureIndexInCourse(int lectureIndexInCourse) {
-        this.lectureIndexInCourse = lectureIndexInCourse;
+    public void setLectureIndex(int lectureIndex) {
+        this.lectureIndex = lectureIndex;
     }
 
     @PlanningPin
@@ -70,12 +63,18 @@ public class Lecture implements Comparable<Lecture>, Serializable {
         this.room = room;
     }
 
-    // ************************************************************************
-    // Complex methods
-    // ************************************************************************
-
+    @PlanningVariable(valueRangeProviderRefs = {"teacherRange"})
     public Teacher getTeacher() {
-        return course.getTeacher();
+        return teacher;
+    }
+
+    @ValueRangeProvider(id = "teacherRange")
+    public List<Teacher> getTeacherRange(){
+        return subject.getPossibleTeacher();
+    }
+
+    public void setTeacher(Teacher teacher) {
+        this.teacher = teacher;
     }
 
     public Day getDay() {
@@ -92,27 +91,12 @@ public class Lecture implements Comparable<Lecture>, Serializable {
         return period.getTimeslot().getTimeslotIndex();
     }
 
-    public String getLabel() {
-        return course.getName() + "-" + lectureIndexInCourse;
-    }
-
-    @Override
-    public String toString() {
-        return "<" + course.toString() + "-" + lectureIndexInCourse + "(课时序号)-" + id + "(id)>";
-    }
-
-    @PlanningVariable(valueRangeProviderRefs = {"eduClassRange"})
     public EduClass getEduClass() {
         return eduClass;
     }
 
     public void setEduClass(EduClass eduClass) {
         this.eduClass = eduClass;
-    }
-
-    @ValueRangeProvider(id = "eduClassRange")
-    public List<EduClass> getPossibleEduClass() {
-        return getCourse().getPossibleEduClassList();
     }
 
     public Long getId() {
@@ -123,27 +107,38 @@ public class Lecture implements Comparable<Lecture>, Serializable {
         this.id = id;
     }
 
-    public List<EduClass> getPossibleEduClassList() {
-        return getCourse().getPossibleEduClassList();
+    public Subject getSubject() {
+        return subject;
     }
 
+    public void setSubject(Subject subject) {
+        this.subject = subject;
+    }
 
     @Override
-    public int compareTo(Lecture o) {
-        return this.course.compareTo(o.course);
+    public int compareTo(LectureOfEduClass o) {
+        return this.eduClass.compareTo(o.getEduClass());
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Lecture lecture = (Lecture) o;
-        return lectureIndexInCourse == lecture.lectureIndexInCourse &&
-                Objects.equals(course, lecture.course) && this.id == lecture.id;
+        LectureOfEduClass that = (LectureOfEduClass) o;
+        return lectureIndex == that.lectureIndex &&
+                Objects.equals(id, that.id) &&
+                Objects.equals(eduClass, that.eduClass) &&
+                Objects.equals(subject, that.subject);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(course, lectureIndexInCourse);
+        return Objects.hash(id, lectureIndex, eduClass, subject);
     }
+
+    @Override
+    public String toString() {
+        return "<" + id + "," + eduClass + "," + subject + ", " + teacher +"," + lectureIndex +">";
+    }
+
 }

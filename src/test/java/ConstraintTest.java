@@ -1,7 +1,7 @@
 import domain.Course;
 import domain.Day;
 import domain.EduClass;
-import domain.Lecture;
+import domain.LectureOfEduClass;
 import domain.Period;
 import domain.Room;
 import domain.Teacher;
@@ -32,14 +32,14 @@ public class ConstraintTest {
                     "config/solverConfig.xml"));
 
     @BeforeClass
-    public static void beforeClass() throws IOException, ClassNotFoundException {
+    public static void beforeClass() throws IOException {
         //读入初始数据
         problem = new TimeTablingProblem();
         Dataset.createDataset(problem,"dataset/1");
         //读入排课结果
         InputStreamReader in = new InputStreamReader(new FileInputStream("result_2019-06-11-16-24-37.csv"), "gbk");
         Iterable<CSVRecord> records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
-        List<Lecture> lectures = new ArrayList<>();
+        List<LectureOfEduClass> lectures = new ArrayList<>();
         for (CSVRecord record : records) {
             String day =record.get("period").split("_")[0];
             String timeslot = record.get("period").split("_")[1];
@@ -66,12 +66,11 @@ public class ConstraintTest {
             course.setClassNo(Integer.parseInt(record.get("classNo")));
             course.setType(Integer.parseInt(record.get("type")));
 
-            Lecture lecture = new Lecture();
+            LectureOfEduClass lecture = new LectureOfEduClass();
             lecture.setId(Long.parseLong(record.get("id")));
             lecture.setPeriod(period);
             lecture.setRoom(room);
-            lecture.setLectureIndexInCourse(Integer.parseInt(record.get("lectureIndexInCourse")));
-            lecture.setCourse(course);
+            lecture.setLectureIndex(Integer.parseInt(record.get("lectureIndexInCourse")));
             lecture.setEduClass(eduClass);
             lectures.add(lecture);
         }

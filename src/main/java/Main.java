@@ -1,18 +1,16 @@
-import domain.Course;
 import domain.EduClass;
-import domain.Lecture;
+import domain.LectureOfEduClass;
 import domain.Period;
 import domain.Room;
+import domain.Subject;
+import domain.Teacher;
 import domain.TimeTablingProblem;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore;
-import org.optaplanner.core.api.score.constraint.ConstraintMatch;
-import org.optaplanner.core.api.score.constraint.ConstraintMatchTotal;
+import org.optaplanner.benchmark.api.PlannerBenchmark;
+import org.optaplanner.benchmark.api.PlannerBenchmarkFactory;
 import org.optaplanner.core.api.solver.Solver;
 import org.optaplanner.core.api.solver.SolverFactory;
-import org.optaplanner.core.impl.score.director.ScoreDirector;
-import org.optaplanner.core.impl.score.director.ScoreDirectorFactory;
 import util.Dataset;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -21,7 +19,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -34,10 +31,9 @@ public class Main {
         Solver<TimeTablingProblem> solver = solverFactory.buildSolver();
         // 初始化数据
         TimeTablingProblem problem = new TimeTablingProblem();
-        Dataset.createDataset(problem,"dataset/1");
+        Dataset.createDataset(problem,"dataset/5");
         // 开始排课
         TimeTablingProblem solvedProblem = solver.solve(problem);
-        System.out.println(solvedProblem.getScore());
         System.out.println(solver.explainBestScore());
         // 写入结果
         // 如果将以下的这些字段作为数据库表字段，那么这张表不满足2nf
@@ -45,17 +41,18 @@ public class Main {
         String time = formatter.format(LocalDateTime.now());
         try (
                 BufferedWriter writer = Files.newBufferedWriter(Paths.get("result_" + time + ".csv"), Charset.forName("gbk"));
-                CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("id", "name", "teacher", "type", "lectureSize", "classNo", "lectureIndexInCourse", "eduClass","eduClassType", "period", "room"))
+                CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("id", "name", "teacher", "type", "maxClassNum", "lectureIndex", "eduClass","eduClassType", "period", "room"))
         ) {
-            List<Lecture> solvedLectures = solvedProblem.getLectureList();
-            for (Lecture solvedLecture : solvedLectures) {
-                Course course = solvedLecture.getCourse();
+            List<LectureOfEduClass> solvedLectures = solvedProblem.getLectureList();
+            for (LectureOfEduClass solvedLecture : solvedLectures) {
                 EduClass eduClass = solvedLecture.getEduClass();
                 Period period = solvedLecture.getPeriod();
                 Room room = solvedLecture.getRoom();
-                csvPrinter.printRecord(solvedLecture.getId(), course.getName(), course.getTeacher(), course.getType(),
-                        course.getLectureSize(), course.getClassNo(), solvedLecture.getLectureIndexInCourse(),
-                        eduClass.toString(),eduClass.getType(), period, room);
+                Subject subject = solvedLecture.getSubject();
+                Teacher teacher = solvedLecture.getTeacher();
+                csvPrinter.printRecord(solvedLecture.getId(),subject.getName(), teacher.getName(), subject.getType(),
+                        teacher.getMaxClassNum(), solvedLecture.getLectureIndex(),
+                        eduClass,eduClass.getType(), period, room);
             }
             csvPrinter.flush();
         }
@@ -74,12 +71,10 @@ public class Main {
                 }
             }
         }*/
-/*
         //基准测试
         PlannerBenchmarkFactory benchmarkFactory = PlannerBenchmarkFactory.createFromSolverFactory(solverFactory);
         PlannerBenchmark plannerBenchmark = benchmarkFactory.buildPlannerBenchmark(problem);
         plannerBenchmark.benchmarkAndShowReportInBrowser();
-*/
 
     }
 

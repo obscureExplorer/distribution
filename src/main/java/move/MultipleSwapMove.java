@@ -18,24 +18,29 @@ import java.util.Objects;
 /**
  * Created by xcy on 2019/6/10.
  */
-public class MultipleChangeMove extends AbstractMove<TimeTablingProblem> {
+public class MultipleSwapMove extends AbstractMove<TimeTablingProblem> {
 
+    private Teacher fromTeacher;
     private List<LectureOfEduClass> lectures;
     private Teacher toTeacher;
 
-    public MultipleChangeMove(List<LectureOfEduClass> lectures, Teacher toTeacher) {
+    public MultipleSwapMove(Teacher fromTeacher, List<LectureOfEduClass> lectures, Teacher toTeacher) {
+        this.fromTeacher = fromTeacher;
         this.lectures = lectures;
         this.toTeacher = toTeacher;
     }
 
     @Override
     protected AbstractMove<TimeTablingProblem> createUndoMove(ScoreDirector<TimeTablingProblem> scoreDirector) {
-        return new MultipleChangeMove(lectures,lectures.get(0).getTeacher());
+        return new MultipleSwapMove(toTeacher,lectures,fromTeacher);
     }
 
     @Override
     protected void doMoveOnGenuineVariables(ScoreDirector<TimeTablingProblem> scoreDirector) {
         for (LectureOfEduClass lecture : lectures) {
+            if(!lecture.getTeacher().equals(fromTeacher)){
+                throw new IllegalStateException("LectureOfEduClass应该具有相同的teacher作为fromTeacher");
+            }
             scoreDirector.beforeVariableChanged(lecture, "teacher");
             lecture.setTeacher(toTeacher);
             scoreDirector.afterVariableChanged(lecture, "teacher");
@@ -44,12 +49,13 @@ public class MultipleChangeMove extends AbstractMove<TimeTablingProblem> {
 
     @Override
     public boolean isMoveDoable(ScoreDirector<TimeTablingProblem> scoreDirector) {
-        return !Objects.equals(lectures.get(0).getTeacher(), toTeacher);
+        return !Objects.equals(fromTeacher, toTeacher);
     }
 
     @Override
     public Move<TimeTablingProblem> rebase(ScoreDirector<TimeTablingProblem> destinationScoreDirector) {
-        return new MultipleChangeMove(rebaseList(lectures, destinationScoreDirector),
+        return new MultipleSwapMove(destinationScoreDirector.lookUpWorkingObject(fromTeacher),
+                rebaseList(lectures, destinationScoreDirector),
                 destinationScoreDirector.lookUpWorkingObject(toTeacher));
     }
 
@@ -60,7 +66,7 @@ public class MultipleChangeMove extends AbstractMove<TimeTablingProblem> {
 
     @Override
     public Collection<?> getPlanningValues() {
-        return Arrays.asList(toTeacher);
+        return Arrays.asList(fromTeacher, toTeacher);
     }
 
     @Override
@@ -69,9 +75,10 @@ public class MultipleChangeMove extends AbstractMove<TimeTablingProblem> {
 
         if (o == null || getClass() != o.getClass()) return false;
 
-        MultipleChangeMove that = (MultipleChangeMove) o;
+        MultipleSwapMove that = (MultipleSwapMove) o;
 
         return new EqualsBuilder()
+                .append(fromTeacher, that.fromTeacher)
                 .append(lectures, that.lectures)
                 .append(toTeacher, that.toTeacher)
                 .isEquals();
@@ -80,6 +87,7 @@ public class MultipleChangeMove extends AbstractMove<TimeTablingProblem> {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
+                .append(fromTeacher)
                 .append(lectures)
                 .append(toTeacher)
                 .toHashCode();

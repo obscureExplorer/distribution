@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -41,14 +42,17 @@ public class TimeTablingProblem implements Serializable {
     @ProblemFactCollectionProperty
     private List<Room> roomList;
 
+//    @ValueRangeProvider(id = "teacherRange")
+    @ProblemFactCollectionProperty
+    private List<Teacher> teacherList;
+
     @ProblemFactCollectionProperty
     private List<EduClass> eduClassList;
 
-    @ProblemFactCollectionProperty
-    private List<Course> courseList;
-
     @PlanningEntityCollectionProperty
-    private List<Lecture> lectureList;
+    private List<LectureOfEduClass> lectureList;
+
+    private Map<Integer, Map<Subject, List<Teacher>>> subjectMap;
 
     @PlanningScore
     private HardSoftScore score;
@@ -77,11 +81,11 @@ public class TimeTablingProblem implements Serializable {
         this.periodList = periodList;
     }
 
-    public List<Lecture> getLectureList() {
+    public List<LectureOfEduClass> getLectureList() {
         return lectureList;
     }
 
-    public void setLectureList(List<Lecture> lectureList) {
+    public void setLectureList(List<LectureOfEduClass> lectureList) {
         this.lectureList = lectureList;
     }
 
@@ -91,14 +95,6 @@ public class TimeTablingProblem implements Serializable {
 
     public void setScore(HardSoftScore score) {
         this.score = score;
-    }
-
-    public List<Course> getCourseList() {
-        return courseList;
-    }
-
-    public void setCourseList(List<Course> courseList) {
-        this.courseList = courseList;
     }
 
     public List<EduClass> getEduClassList() {
@@ -122,21 +118,22 @@ public class TimeTablingProblem implements Serializable {
                 List<Student> leftStudents = leftEduClass.getStudents();
                 List<Student> rightStudents = rightEduClass.getStudents();
                 long conflictCount = leftStudents.stream()
-                        .filter(rightStudents::contains)
-                        .collect(Collectors.counting());
+                        .filter(rightStudents::contains).count();
                 if (conflictCount > 0)
                    eduClassConflictList.add(new EduClassConflict(leftEduClass, rightEduClass, (int) conflictCount));
                     //eduClassConflictList.add(new EduClassConflict(leftEduClass, rightEduClass, 1));
             }
         }
+/*
         //与自身构成冲突
         for (EduClass eduClass : eduClassList) {
              eduClassConflictList.add(new EduClassConflict(eduClass, eduClass, eduClass.getStudents().size()));
         }
+*/
 
-        if(!Files.exists(Paths.get("classConflict.csv"))){
+        if(!Files.exists(Paths.get("classConflict2.csv"))){
             try (
-                    BufferedWriter writer = Files.newBufferedWriter(Paths.get("classConflict.csv"), Charset.forName("gbk"));
+                    BufferedWriter writer = Files.newBufferedWriter(Paths.get("classConflict2.csv"), Charset.forName("gbk"));
                     CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("leftEduClass","rightEduClass"))
             ) {
                 eduClassConflictList.forEach(e -> {
@@ -155,34 +152,27 @@ public class TimeTablingProblem implements Serializable {
         return eduClassConflictList;
     }
 
-    @ProblemFactCollectionProperty
-    private List<CourseConflict> calculateCourseConflict() {
-        List<CourseConflict> courseConflictList = new ArrayList<>();
-
-        int size = courseList.size();
-        for (int i = 0; i < size - 1; i++) {
-            for (int j = i + 1; j < size; j++) {
-                Course leftCourse = courseList.get(i);
-                Course rightCourse = courseList.get(j);
-                int conflictCount = 0;
-                if (leftCourse.getTeacher().equals(rightCourse.getTeacher())) {
-                    conflictCount++;
-                }
-                if (conflictCount > 0) {
-                    courseConflictList.add(new CourseConflict(leftCourse, rightCourse, conflictCount));
-                }
-            }
-        }
-       // this.courseList.forEach(c -> courseConflictList.add( new CourseConflict(c,c,1)));
-
-        return courseConflictList;
-    }
-
     public List<Room> getRoomList() {
         return roomList;
     }
 
     public void setRoomList(List<Room> roomList) {
         this.roomList = roomList;
+    }
+
+    public List<Teacher> getTeacherList() {
+        return teacherList;
+    }
+
+    public void setTeacherList(List<Teacher> teacherList) {
+        this.teacherList = teacherList;
+    }
+
+    public Map<Integer, Map<Subject, List<Teacher>>> getSubjectMap() {
+        return subjectMap;
+    }
+
+    public void setSubjectMap(Map<Integer, Map<Subject, List<Teacher>>> subjectMap) {
+        this.subjectMap = subjectMap;
     }
 }

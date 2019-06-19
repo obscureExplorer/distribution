@@ -19,28 +19,28 @@ package domain;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.optaplanner.core.impl.heuristic.selector.common.decorator.SelectionSorterWeightFactory;
 
-public class LectureDifficultyWeightFactory implements SelectionSorterWeightFactory<TimeTablingProblem, Lecture> {
+public class LectureDifficultyWeightFactory implements SelectionSorterWeightFactory<TimeTablingProblem, LectureOfEduClass> {
 
 
     @Override
-    public LectureDifficultyWeight createSorterWeight(TimeTablingProblem problem, Lecture lecture) {
+    public LectureDifficultyWeight createSorterWeight(TimeTablingProblem problem, LectureOfEduClass lecture) {
         return new LectureDifficultyWeight(lecture);
     }
 
     public static class LectureDifficultyWeight implements Comparable<LectureDifficultyWeight> {
 
-        private final Lecture lecture;
+        private final LectureOfEduClass lecture;
 
-        public LectureDifficultyWeight(Lecture lecture) {
+        public LectureDifficultyWeight(LectureOfEduClass lecture) {
             this.lecture = lecture;
         }
 
         @Override
         public int compareTo(LectureDifficultyWeight other) {
-            Course course = lecture.getCourse();
-            Course otherCourse = other.lecture.getCourse();
+            EduClass eduClass = lecture.getEduClass();
+            EduClass otherEduClass = other.lecture.getEduClass();
             return new CompareToBuilder()
-                    .append(course.getLectureSize(),otherCourse.getLectureSize())
+                    .append(eduClass,otherEduClass)
                     .append(lecture.getId(), other.lecture.getId())
                     .toComparison();
         }

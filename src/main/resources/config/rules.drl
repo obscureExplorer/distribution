@@ -3,131 +3,93 @@ import domain.EduClassConflict;
 import domain.Course;
 import domain.CourseConflict;
 import domain.Day;
-import domain.Lecture;
+import domain.LectureOfEduClass;
 import domain.Period;
 import domain.Student;
 import domain.Teacher;
 import domain.Timeslot;
 import domain.EduClass;
 import domain.Room;
-import accumulate accumulatefunction.AdministrativeClassCourseCheck check;
-import accumulate accumulatefunction.ClassCourseCheck check2;
-
+import domain.LectureOfEduClass;
 
 global HardSoftScoreHolder scoreHolder;
 
 // 强约束条件
-// 同个时间点，不同课程的同一个老师之间的冲突
-rule "conflictingLecturesDifferentCourseInSamePeriod"
-    when
-        $courseConflict : CourseConflict($leftCourse : leftCourse, $rightCourse : rightCourse)
-        $leftLecture : Lecture(course == $leftCourse, $period : period, period != null, $leftId: id)
-        $rightLecture : Lecture(course == $rightCourse, period == $period, id > $leftId)
-    then
-        scoreHolder.addHardConstraintMatch(kcontext, - $courseConflict.getConflictCount());
-end
-// 同个时间点，同一个课程的同一个老师之间的冲突
-rule "conflictingLecturesSameCourseInSamePeriod"
-    when
-        Lecture($leftId : id, $leftCourse : course, $period : period, period != null)
-        Lecture(course == $leftCourse, period == $period, id > $leftId)
-    then
-        scoreHolder.addHardConstraintMatch(kcontext, -1 );
-end
-
-// 同个时间点，有上课的班级两两之间存在共同的学生，则该对班级存在冲突
-rule "conflictingEduClassInSamePeriod"
+// 同个时间点，有上课的不同班级之间存在冲突
+rule "differentEduClassInSamePeriod"
     when
         $eduClassConflict : EduClassConflict($leftEduClass : leftEduClass,$rightEduClass : rightEduClass)
-        $leftLecture : Lecture(eduClass == $leftEduClass, $period : period, period != null, $leftId : id)
-        $rightLecture : Lecture(eduClass == $rightEduClass, period == $period, this != $leftLecture)
+        LectureOfEduClass(eduClass == $leftEduClass, $period : period, period != null, $leftId : id)
+        LectureOfEduClass(eduClass == $rightEduClass, period == $period, id > $leftId)
     then
         scoreHolder.addHardConstraintMatch(kcontext, - $eduClassConflict.getConflictCount());
 end
 
-// 同一个时间，同一个地点只能由一个老师\班级在上课
-rule "roomOccupancy"
+// 班级与班级自己有冲突
+rule "sameEduClassInSamePeriod"
     when
-        $L1:Lecture($leftId : id, period != null, $period : period, room != null, $room : room,eduClass != null)
-        // $leftLecture的period和room的id是最小的
-        not Lecture(period == $period, room == $room, id < $leftId,eduClass != null)
-        // rightLecture的period和上面的是一样
-        $L2:Lecture(period == $period, room == $room, id > $leftId, $rightId : id,eduClass != null)
+        //eduClass不可能为null，因此不用判断了。
+        LectureOfEduClass($leftId : id, $period : period, period != null, $room : room, room != null,$eduClass : eduClass)
+        not LectureOfEduClass(id < $leftId , $period == period, $room == room, $eduClass == eduClass)
+        LectureOfEduClass(id > $leftId, period == $period , $eduClass == eduClass)
     then
-//        System.out.println("$1:" + $L1 + "," + $L1.getPeriod() + "," + $L1.getRoom());
-//        System.out.println("$2:" + $L2 + "," + $L2.getPeriod() + "," + $L2.getRoom());
+        scoreHolder.addHardConstraintMatch(kcontext, -$eduClass.getStudents().size());
+end
+
+// 同个时间点，同一个老师之间的冲突
+rule "sameTeacherInSamePeriod"
+    when
+        LectureOfEduClass($leftId : id, $period : period, period != null, room != null, $teacher :teacher)
+        not LectureOfEduClass(id < $leftId, $period == period, room != null, $teacher == teacher)
+        LectureOfEduClass(id > $leftId, period == $period, room != null, teacher == $teacher)
+    then
         scoreHolder.addHardConstraintMatch(kcontext, -1);
 end
 
-
-//行政班需要有除了选修以外的必修课，而且是同一个老师、课时数正确
-rule "administrativeClass"
+// 同一个时间、同一个地点的冲突
+rule "roomOccupancy"
     when
-       $administrativeClass : EduClass(type == 0)
-       accumulate($lectures :Lecture(eduClass == $administrativeClass,room != null,period != null); $result : check($lectures); $result != 0)
+        LectureOfEduClass($leftId : id, period != null, $period : period, room != null, $room : room)
+        // $leftLecture是相同的period和room里最小的
+        // 例如1、2、3、4。这个规则，只对(1,2)、（1,3）、（1、4）触发，对（2，3）、（2,4）不触发
+        not LectureOfEduClass(id < $leftId, period == $period, room == $room)
+        // rightLecture的period和上面的是一样
+        LectureOfEduClass(period == $period, room == $room, id > $leftId, $rightId : id)
     then
-        scoreHolder.addHardConstraintMatch(kcontext, $result);
+        scoreHolder.addHardConstraintMatch(kcontext, -1);
 end
 
-//教学班需要要有对应的该老师来上课
-rule "teachingClass"
+//不能超过老师的最大授课班级数
+rule "maxNum"
     when
-        $teachingClass : EduClass(type == 1)
-        accumulate($lectures :Lecture(eduClass == $teachingClass,room != null,period != null); $result : check2($lectures); $result != 0)
+        $teacher : Teacher()
+        accumulate(
+            $eduClass : EduClass() and exists LectureOfEduClass(eduClass == $eduClass,teacher == $teacher);
+            $eduClassCount : count($eduClass);
+            $eduClassCount > $teacher.maxClassNum
+        )
     then
-        scoreHolder.addHardConstraintMatch(kcontext, $result);
-end
-
-//教学班需要要有对应的该老师来上课
-rule "teachingClass2"
-    when
-        $teachingClass : EduClass(type == 2)
-        accumulate($lectures :Lecture(eduClass == $teachingClass,room != null,period != null); $result : check2($lectures); $result != 0)
-    then
-        scoreHolder.addHardConstraintMatch(kcontext, $result);
+        scoreHolder.addHardConstraintMatch(kcontext, (int)($teacher.getMaxClassNum() - $eduClassCount ));
 end
 
 
+/*
 rule "sameRoom"
     when
         $administrativeClass : EduClass(type == 0)
         accumulate (
             $room : Room()
-            and exists Lecture(room == $room,eduClass == $administrativeClass,period != null)
-            ;
+            and exists Lecture(room == $room,eduClass == $administrativeClass,period != null);
             $roomCount : count($room);
             $roomCount > 1
         )
     then
         scoreHolder.addSoftConstraintMatch(kcontext, 1-$roomCount.intValue());
 end
-
-/*
-// 弱约束条件
-// CurriculumCompactness: Lectures belonging to a curriculum should be adjacent
-// to each other (i.e., in consecutive periods).
-// For a given curriculum we account for a violation every time there is one lecture not adjacent
-// to any other lecture within the same day.
-// Each isolated lecture in a curriculum counts as 2 points of penalty.
-rule "curriculumCompactness"
-    when
-        $curriculum : Curriculum()
-
-        Lecture(curriculumList contains $curriculum,
-            $day : day, $timeslotIndex : timeslotIndex, period != null
-        )
-        not Lecture(curriculumList contains $curriculum,
-            day == $day, timeslotIndex == ($timeslotIndex - 1)
-        )
-        not Lecture(curriculumList contains $curriculum,
-            day == $day, timeslotIndex == ($timeslotIndex + 1)
-        )
-    then
-        scoreHolder.addSoftConstraintMatch(kcontext, -2);
-end
 */
-// RoomStability: All lectures of a course should be given in the same room.
-// Each distinct room used for the lectures of a course, but the first, counts as 1 point of penalty.
+
+
+// 弱约束条件
 //同一个course的lecture应该在同一间教室
 /*
 rule "roomStability"
