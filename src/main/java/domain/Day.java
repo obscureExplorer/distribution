@@ -1,5 +1,7 @@
 package domain;
 
+import org.optaplanner.core.api.domain.lookup.PlanningId;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
@@ -11,7 +13,8 @@ public class Day implements Serializable {
 
     private static final long serialVersionUID = -3738174756703337500L;
 
-    private static final String[] WEEKDAYS = {"Mo", "Tu", "We", "Th", "Fr", "Sat", "Sun"};
+    @PlanningId
+    private Long id;
 
     private int dayIndex;
 
@@ -33,14 +36,6 @@ public class Day implements Serializable {
         this.periodList = periodList;
     }
 
-    public String getLabel() {
-        String weekday = WEEKDAYS[dayIndex % WEEKDAYS.length];
-        if (dayIndex > WEEKDAYS.length) {
-            return "Day " + dayIndex;
-        }
-        return weekday;
-    }
-
     @Override
     public String toString() {
         return Integer.toString(dayIndex);
@@ -57,5 +52,13 @@ public class Day implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(dayIndex);
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

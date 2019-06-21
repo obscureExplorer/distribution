@@ -9,8 +9,13 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.optaplanner.benchmark.api.PlannerBenchmark;
 import org.optaplanner.benchmark.api.PlannerBenchmarkFactory;
+import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore;
+import org.optaplanner.core.api.score.constraint.ConstraintMatch;
+import org.optaplanner.core.api.score.constraint.ConstraintMatchTotal;
 import org.optaplanner.core.api.solver.Solver;
 import org.optaplanner.core.api.solver.SolverFactory;
+import org.optaplanner.core.impl.score.director.ScoreDirector;
+import org.optaplanner.core.impl.score.director.ScoreDirectorFactory;
 import util.Dataset;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -19,7 +24,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by xcy on 2019/5/15.
@@ -34,7 +41,8 @@ public class Main {
         Dataset.createDataset(problem,"dataset/5");
         // 开始排课
         TimeTablingProblem solvedProblem = solver.solve(problem);
-        System.out.println(solver.explainBestScore());
+
+        //System.out.println(solver.explainBestScore());
         // 写入结果
         // 如果将以下的这些字段作为数据库表字段，那么这张表不满足2nf
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
@@ -57,24 +65,31 @@ public class Main {
             csvPrinter.flush();
         }
 
-       /* ScoreDirectorFactory<TimeTablingProblem> scoreDirectorFactory = solver.getScoreDirectorFactory();
+        ScoreDirectorFactory<TimeTablingProblem> scoreDirectorFactory = solver.getScoreDirectorFactory();
         try (ScoreDirector<TimeTablingProblem> guiScoreDirector = scoreDirectorFactory.buildScoreDirector()) {
+            guiScoreDirector.setWorkingSolution(solvedProblem);
+            //记录了被打破的规则
             Collection<ConstraintMatchTotal> constraintMatchTotals = guiScoreDirector.getConstraintMatchTotals();
             for (ConstraintMatchTotal constraintMatchTotal : constraintMatchTotals) {
                 String constraintName = constraintMatchTotal.getConstraintName();
-                // The score impact of that constraint
+                // 这条被打破的规则对分值的影响
                 HardSoftScore totalScore = (HardSoftScore) constraintMatchTotal.getScore();
-                for (ConstraintMatch constraintMatch : constraintMatchTotal.getConstraintMatchSet()) {
+                // 哪些对象打破了这条规则
+                Set<ConstraintMatch> constraintMatchSet = constraintMatchTotal.getConstraintMatchSet();
+                System.out.println(totalScore.toShortString() + " constraint(" + constraintName + ") has " + constraintMatchSet.size() + " matches" );
+                for (ConstraintMatch constraintMatch : constraintMatchSet) {
                     List<Object> justificationList = constraintMatch.getJustificationList();
                     HardSoftScore score = (HardSoftScore) constraintMatch.getScore();
-                    System.out.println(score.toShortString() + "[" + "]");
+                    System.out.println(score.toShortString() + justificationList.toString() );
                 }
             }
-        }*/
+        }
         //基准测试
+/*
         PlannerBenchmarkFactory benchmarkFactory = PlannerBenchmarkFactory.createFromSolverFactory(solverFactory);
         PlannerBenchmark plannerBenchmark = benchmarkFactory.buildPlannerBenchmark(problem);
         plannerBenchmark.benchmarkAndShowReportInBrowser();
+*/
 
     }
 

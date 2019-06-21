@@ -1,5 +1,7 @@
 package domain;
 
+import org.optaplanner.core.api.domain.lookup.PlanningId;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -9,6 +11,8 @@ import java.util.Objects;
 public class Period implements Serializable {
     private static final long serialVersionUID = 2761408999678903490L;
 
+    @PlanningId
+    private Long id;
     private Day day;
     private Timeslot timeslot;
     private int index;
@@ -27,10 +31,6 @@ public class Period implements Serializable {
 
     public void setTimeslot(Timeslot timeslot) {
         this.timeslot = timeslot;
-    }
-
-    public String getLabel() {
-        return day.getLabel() + " " + timeslot.getLabel();
     }
 
     @Override
@@ -58,5 +58,13 @@ public class Period implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(day, timeslot);
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

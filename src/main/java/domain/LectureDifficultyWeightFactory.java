@@ -37,10 +37,9 @@ public class LectureDifficultyWeightFactory implements SelectionSorterWeightFact
 
         @Override
         public int compareTo(LectureDifficultyWeight other) {
-            EduClass eduClass = lecture.getEduClass();
-            EduClass otherEduClass = other.lecture.getEduClass();
             return new CompareToBuilder()
-                    .append(eduClass,otherEduClass)
+                    .append(lecture.getEduClass(),other.lecture.getEduClass())
+                    .append(lecture.getSubject(),other.lecture.getSubject())
                     .append(lecture.getId(), other.lecture.getId())
                     .toComparison();
         }

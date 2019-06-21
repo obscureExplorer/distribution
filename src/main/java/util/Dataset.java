@@ -16,11 +16,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -40,20 +38,24 @@ public class Dataset {
 
         List<Day> dayList = IntStream.range(0, dayNum).mapToObj(i -> {
             Day d = new Day();
+            d.setId((long) i);
             d.setDayIndex(i + 1);
             return d;
         }).collect(Collectors.toList());
 
         List<Timeslot> timeslots = IntStream.range(0, timeslotNum).mapToObj(i -> {
             Timeslot ts = new Timeslot();
+            ts.setId((long) i);
             ts.setTimeslotIndex(i + 1);
             return ts;
         }).collect(Collectors.toList());
 
+        long id = 0;
         List<Period> periodList = new ArrayList<>();
         for (int i = 0; i < dayNum; i++) {
             for (int j = 0; j < timeslotNum; j++) {
                 Period p = new Period();
+                p.setId(id++);
                 p.setDay(dayList.get(i));
                 p.setTimeslot(timeslots.get(j));
                 periodList.add(p);
@@ -61,6 +63,7 @@ public class Dataset {
         }
         List<Room> rooms = IntStream.range(0, roomNum).mapToObj(i -> {
             Room a = new Room();
+            a.setId((long) i);
             a.setName("room" + (i + 1));
             return a;
         }).collect(Collectors.toList());
@@ -82,9 +85,10 @@ public class Dataset {
         //     --(化学，学考) -- [季]
         //会考 --(政治，会考) -- [魏]
         //     --(生物，会考) -- [林]
-        Map<Integer, Map<Subject, List<Teacher>>> subjectMap = new HashMap<>();
-        Set<Teacher> teacherSet = new HashSet<>();
+        Map<Integer, Map<Subject, List<Teacher>>> subjectMap = new LinkedHashMap<>();
+        Map<String,Teacher> teacherMap = new LinkedHashMap<>();
 
+        id = 0;
         for (CSVRecord csvRecord : records) {
             String subjectName = csvRecord.get("subjectName");
             String teacherName = csvRecord.get("teacherName");
@@ -95,24 +99,36 @@ public class Dataset {
             Subject subject = new Subject(subjectName, type, lectureSize);
             subject.setSubjectMap(subjectMap);
 
-            Teacher teacher = new Teacher(teacherName, maxClassNum);
-            teacherSet.add(teacher);
-            subjectMap.putIfAbsent(type, new HashMap<>());
+            Teacher currentTeacher;
+            if(!teacherMap.containsKey(teacherName)){
+                currentTeacher = new Teacher(teacherName,maxClassNum);
+                currentTeacher.setId(id++);
+                teacherMap.put(teacherName,currentTeacher);
+            }else{
+                currentTeacher = teacherMap.get(teacherName);
+            }
+
+            subjectMap.putIfAbsent(type, new LinkedHashMap<>());
             subjectMap.get(type).putIfAbsent(subject, new ArrayList<>());
-            subjectMap.get(type).get(subject).add(teacher);
+            subjectMap.get(type).get(subject).add(currentTeacher);
         }
         problem.setSubjectMap(subjectMap);
 
+        List<Teacher> teacherList = teacherMap.keySet().stream().map(k -> teacherMap.get(k)).collect(Collectors.toList());
+        problem.setTeacherList(teacherList);
+
         //设置分班数据
+        id = 0;
         in = new InputStreamReader(new FileInputStream(parentFolder + "/分班数据.csv"), "gbk");
         records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
-        Map<EduClass, List<Student>> classStudentMap = new HashMap<>();
+        Map<EduClass, List<Student>> classStudentMap = new LinkedHashMap<>();
         for (CSVRecord csvRecord : records) {
             String className = csvRecord.get("className");
             int type = Integer.parseInt(csvRecord.get("type"));
             String subjectName = csvRecord.get("subjectName");
 
             EduClass eduClass = new EduClass();
+            eduClass.setId(id++);
             eduClass.setName(className);
             eduClass.setType(type);
             eduClass.setSubjectName(subjectName);
@@ -128,19 +144,20 @@ public class Dataset {
                 .collect(Collectors.toList());
         problem.setEduClassList(eduClassList);
 
-        Map<Integer, Map<Subject, List<EduClass>>> classMap = new HashMap<>();
+        Map<Integer, Map<Subject, List<EduClass>>> classMap = new LinkedHashMap<>();
         for (EduClass eduClass : eduClassList) {
             int type = eduClass.getType();
             String subjectName = eduClass.getSubjectName();
 
-            classMap.putIfAbsent(type,new HashMap<>());
+            classMap.putIfAbsent(type,new LinkedHashMap<>());
             Subject subject = new Subject(subjectName,type);
             classMap.get(type).putIfAbsent(subject,new ArrayList<>());
             classMap.get(type).get(subject).add(eduClass);
         }
         //构造lectures数据--假定行政班对应必修课，学考班对应学考科目，会考班对应会考科目
         List<LectureOfEduClass> lectureOfEduClasses = new ArrayList<>();
-        long k = 0;
+
+        id = 0;
         for (EduClass eduClass : eduClassList) {
             int type = eduClass.getType();
             Map<Subject, List<Teacher>> subjects = subjectMap.get(type);
@@ -149,7 +166,7 @@ public class Dataset {
                     int lectureSize = subject.getLectureSize();
                     for (int i = 0; i < lectureSize; i++) {
                         LectureOfEduClass lecture = new LectureOfEduClass();
-                        lecture.setId(k++);
+                        lecture.setId(id++);
                         lecture.setEduClass(eduClass);
                         lecture.setLectureIndex(i);
                         lecture.setSubject(subject);
@@ -162,7 +179,7 @@ public class Dataset {
                         int size = subject.getLectureSize();
                         for (int i = 0; i < size; i++) {
                             LectureOfEduClass lecture = new LectureOfEduClass();
-                            lecture.setId(k++);
+                            lecture.setId(id++);
                             lecture.setEduClass(eduClass);
                             lecture.setLectureIndex(i);
                             lecture.setSubject(subject);
@@ -174,10 +191,6 @@ public class Dataset {
             }
         }
         problem.setLectureList(lectureOfEduClasses);
-
-        List<Teacher> teacherList = new ArrayList<>(teacherSet);
-        problem.setTeacherList(teacherList);
-
 
     }
 }

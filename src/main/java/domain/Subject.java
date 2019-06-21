@@ -1,6 +1,7 @@
 package domain;
 
-import java.util.HashMap;
+import org.apache.commons.lang3.builder.CompareToBuilder;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -8,7 +9,7 @@ import java.util.Objects;
 /**
  * Created by xcy on 2019/6/14.
  */
-public class Subject {
+public class Subject implements Comparable<Subject>{
     //科目名
     private String name;
     //0-必修，1-选考，2-学考
@@ -100,5 +101,12 @@ public class Subject {
 
     public void setSubjectMap(Map<Integer, Map<Subject, List<Teacher>>> subjectMap) {
         this.subjectMap = subjectMap;
+    }
+
+    @Override
+    public int compareTo(Subject o) {
+        return new CompareToBuilder()
+                .append(this.name,o.name)
+                .append(this.type,this.type).toComparison();
     }
 }

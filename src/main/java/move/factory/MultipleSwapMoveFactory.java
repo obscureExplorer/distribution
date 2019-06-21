@@ -31,12 +31,12 @@ public class MultipleSwapMoveFactory implements MoveListFactory<TimeTablingProbl
 
         for (Subject subject : lectureMap.keySet()) {
             Set<EduClass> eduClasses = lectureMap.get(subject).keySet();
-            Generator.combination(eduClasses).simple(2).stream().forEach(t -> {
-                Teacher t1 = lectureMap.get(subject).get(t.get(0)).get(0).getTeacher();
-                Teacher t2 = lectureMap.get(subject).get(t.get(1)).get(0).getTeacher();
+            Generator.combination(eduClasses).simple(2).stream().forEach(combo -> {
+                Teacher t1 = lectureMap.get(subject).get(combo.get(0)).get(0).getTeacher();
+                Teacher t2 = lectureMap.get(subject).get(combo.get(1)).get(0).getTeacher();
                 if (!t1.equals(t2)) {
-                    MultipleSwapMove move1 = new MultipleSwapMove(t1, lectureMap.get(subject).get(t.get(0)), t2);
-                    MultipleSwapMove move2 = new MultipleSwapMove(t2, lectureMap.get(subject).get(t.get(1)), t1);
+                    MultipleSwapMove move1 = new MultipleSwapMove(t1, lectureMap.get(subject).get(combo.get(0)), t2);
+                    MultipleSwapMove move2 = new MultipleSwapMove(t2, lectureMap.get(subject).get(combo.get(1)), t1);
                     moveList.add(move1);
                     moveList.add(move2);
                 }

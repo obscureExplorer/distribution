@@ -9,7 +9,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -23,7 +23,7 @@ public class ClassDistribution {
     public static void main(String[] args) throws IOException {
         InputStreamReader in = new InputStreamReader(new FileInputStream("英才学生选科数据.csv"), "gbk");
         Iterable<CSVRecord> records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
-        Map<String, List<String>> map = new HashMap<>();
+        Map<String, List<String>> map = new LinkedHashMap<>();
         map.put("物理", new ArrayList<>());
         map.put("化学", new ArrayList<>());
         map.put("生物", new ArrayList<>());

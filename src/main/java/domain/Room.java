@@ -1,5 +1,7 @@
 package domain;
 
+import org.optaplanner.core.api.domain.lookup.PlanningId;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -9,6 +11,8 @@ import java.util.Objects;
 public class Room implements Serializable {
     private static final long serialVersionUID = 3169438635430425998L;
 
+    @PlanningId
+    private Long id;
     private String name;
     //展示结果用的
     private int index;
@@ -45,5 +49,13 @@ public class Room implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(name);
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

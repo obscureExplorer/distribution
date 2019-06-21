@@ -1,5 +1,8 @@
 package domain;
 
+import org.apache.commons.lang3.builder.CompareToBuilder;
+import org.optaplanner.core.api.domain.lookup.PlanningId;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
@@ -10,7 +13,8 @@ import java.util.Objects;
 public class EduClass implements Serializable,Comparable<EduClass> {
     private static final long serialVersionUID = 2490355394270166676L;
 
-    private Integer id;
+    @PlanningId
+    private Long id;
     private String name;
     private List<Student> students;
     private String subjectName;
@@ -21,11 +25,11 @@ public class EduClass implements Serializable,Comparable<EduClass> {
     private int index;
 
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -90,7 +94,10 @@ public class EduClass implements Serializable,Comparable<EduClass> {
 
     @Override
     public int compareTo(EduClass o) {
-        return o.getType() - this.getType();
+        return new CompareToBuilder()
+                .append(name,o.name)
+                .append(type,o.type)
+                .toComparison();
     }
 
 }

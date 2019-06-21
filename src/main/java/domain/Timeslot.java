@@ -1,5 +1,7 @@
 package domain;
 
+import org.optaplanner.core.api.domain.lookup.PlanningId;
+
 import java.io.Serializable;
 
 /**
@@ -8,8 +10,8 @@ import java.io.Serializable;
 public class Timeslot implements Serializable {
     private static final long serialVersionUID = -7629783018536847059L;
 
-    private static final String[] TIMES = {"08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"};
-
+    @PlanningId
+    private Long id;
 
     private int timeslotIndex;
 
@@ -21,17 +23,16 @@ public class Timeslot implements Serializable {
         this.timeslotIndex = timeslotIndex;
     }
 
-    public String getLabel() {
-        String time = TIMES[timeslotIndex % TIMES.length];
-        if (timeslotIndex > TIMES.length) {
-            return "Timeslot " + timeslotIndex;
-        }
-        return time;
-    }
-
     @Override
     public String toString() {
         return Integer.toString(timeslotIndex);
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 }

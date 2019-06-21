@@ -1,7 +1,5 @@
 import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScoreHolder;
 import domain.EduClassConflict;
-import domain.Course;
-import domain.CourseConflict;
 import domain.Day;
 import domain.LectureOfEduClass;
 import domain.Period;

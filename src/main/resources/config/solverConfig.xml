@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <solver>
+    <moveThreadCount>AUTO</moveThreadCount>
+
     <!-- Domain model configuration -->
     <scanAnnotatedClasses>
         <packageInclude>domain</packageInclude>
@@ -21,23 +23,32 @@
     <termination>
         <minutesSpentLimit>5</minutesSpentLimit>
         <bestScoreFeasible>true</bestScoreFeasible>
-<!--        <termination>
-            <secondsSpentLimit>10</secondsSpentLimit>
-        </termination>-->
     </termination>
 
-    <constructionHeuristic>
+   <customPhase>
+    <customPhaseCommandClass>initializer.TeacherInitializer</customPhaseCommandClass>
+   </customPhase>
+
+<!--   <constructionHeuristic>
         <constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>
+        <cartesianProductMoveSelector>
+            <changeMoveSelector>
+                <valueSelector variableName="period"/>
+            </changeMoveSelector>
+            <changeMoveSelector>
+                <valueSelector variableName="room"/>
+            </changeMoveSelector>
+        </cartesianProductMoveSelector>
     </constructionHeuristic>
 
-     <localSearch>
+   <localSearch>
        <unionMoveSelector>
-           <changeMoveSelector>
-               <valueSelector variableName="room"></valueSelector>
-           </changeMoveSelector>
-            <changeMoveSelector>
-               <valueSelector variableName="period"></valueSelector>
-           </changeMoveSelector>
+         <changeMoveSelector>
+             <valueSelector variableName="room"/>
+         </changeMoveSelector>
+          <changeMoveSelector>
+             <valueSelector variableName="period"/>
+         </changeMoveSelector>
          <swapMoveSelector>
              <variableNameInclude>period</variableNameInclude>
              <variableNameInclude>room</variableNameInclude>
@@ -51,13 +62,13 @@
             <cacheType>STEP</cacheType>
             <moveListFactoryClass>move.factory.MultipleSwapMoveFactory</moveListFactoryClass>
          </moveListFactory>
-
        </unionMoveSelector>
+
        <acceptor>
          <lateAcceptanceSize>800</lateAcceptanceSize>
        </acceptor>
        <forager>
          <acceptedCountLimit>4</acceptedCountLimit>
        </forager>
-     </localSearch>
+     </localSearch>-->
 </solver>

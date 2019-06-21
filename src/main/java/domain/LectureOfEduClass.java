@@ -2,6 +2,7 @@ package domain;
 
 import org.optaplanner.core.api.domain.entity.PlanningEntity;
 import org.optaplanner.core.api.domain.entity.PlanningPin;
+import org.optaplanner.core.api.domain.lookup.PlanningId;
 import org.optaplanner.core.api.domain.valuerange.ValueRangeProvider;
 import org.optaplanner.core.api.domain.variable.PlanningVariable;
 import java.io.Serializable;
@@ -17,6 +18,7 @@ public class LectureOfEduClass implements Comparable<LectureOfEduClass>, Seriali
 
     private static final long serialVersionUID = 5281845023098929368L;
 
+    @PlanningId
     private Long id;
     private int lectureIndex;
     private boolean pinned;

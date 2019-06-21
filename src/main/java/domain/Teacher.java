@@ -1,5 +1,7 @@
 package domain;
 
+import org.optaplanner.core.api.domain.lookup.PlanningId;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -8,6 +10,9 @@ import java.util.Objects;
  */
 public class Teacher  implements Comparable<Teacher>, Serializable {
     private static final long serialVersionUID = -3540978721456622358L;
+
+    @PlanningId
+    private Long id;
 
     private String name;
 
@@ -58,5 +63,13 @@ public class Teacher  implements Comparable<Teacher>, Serializable {
 
     public void setMaxClassNum(int maxClassNum) {
         this.maxClassNum = maxClassNum;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

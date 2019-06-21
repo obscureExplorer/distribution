@@ -1,10 +1,8 @@
-import domain.Course;
 import domain.Day;
 import domain.EduClass;
 import domain.LectureOfEduClass;
 import domain.Period;
 import domain.Room;
-import domain.Teacher;
 import domain.TimeTablingProblem;
 import domain.Timeslot;
 import org.apache.commons.csv.CSVFormat;
@@ -14,6 +12,7 @@ import org.junit.Test;
 import org.optaplanner.core.api.solver.SolverFactory;
 import org.optaplanner.test.impl.score.buildin.hardsoft.HardSoftScoreVerifier;
 import util.Dataset;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -56,15 +55,6 @@ public class ConstraintTest {
             EduClass eduClass = new EduClass();
             eduClass.setName(record.get("eduClass"));
             eduClass.setType(Integer.parseInt(record.get("eduClassType")));
-
-            Course course = new Course();
-            Teacher teacher = new Teacher();
-            teacher.setName(record.get("teacher"));
-            course.setName(record.get("name"));
-            course.setTeacher(teacher);
-            course.setLectureSize(Integer.parseInt(record.get("lectureSize")));
-            course.setClassNo(Integer.parseInt(record.get("classNo")));
-            course.setType(Integer.parseInt(record.get("type")));
 
             LectureOfEduClass lecture = new LectureOfEduClass();
             lecture.setId(Long.parseLong(record.get("id")));
