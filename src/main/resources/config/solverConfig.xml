@@ -29,7 +29,7 @@
     <customPhaseCommandClass>initializer.TeacherInitializer</customPhaseCommandClass>
    </customPhase>
 
-<!--   <constructionHeuristic>
+   <constructionHeuristic>
         <constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>
         <cartesianProductMoveSelector>
             <changeMoveSelector>
@@ -70,5 +70,5 @@
        <forager>
          <acceptedCountLimit>4</acceptedCountLimit>
        </forager>
-     </localSearch>-->
+     </localSearch>
 </solver>

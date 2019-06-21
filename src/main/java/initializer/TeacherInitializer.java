@@ -27,14 +27,14 @@ public class TeacherInitializer  extends AbstractCustomPhaseCommand<TimeTablingP
 
         for (Subject subject : lectureMap.keySet()) {
             List<Teacher> teachers = subjectMap.get(subject.getType()).get(subject);
-            LinkedList<Teacher> teacherQueue = new LinkedList<>();
+            Queue<Teacher> teacherQueue = new LinkedList<>();
             for (Teacher teacher : teachers) {
                 for (int i = 0; i < teacher.getMaxClassNum(); i++) {
                     teacherQueue.add(teacher);
                 }
             }
             for (EduClass eduClass : lectureMap.get(subject).keySet()) {
-                Teacher currentTeacher = teacherQueue.poll();
+                Teacher currentTeacher = teacherQueue.remove();
                 for (LectureOfEduClass lecture : lectureMap.get(subject).get(eduClass)) {
                     scoreDirector.beforeVariableChanged(lecture,"teacher");
                     lecture.setTeacher(currentTeacher);
