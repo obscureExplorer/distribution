@@ -1,7 +1,5 @@
 package domain;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
 import org.optaplanner.core.api.domain.solution.PlanningEntityCollectionProperty;
 import org.optaplanner.core.api.domain.solution.PlanningScore;
 import org.optaplanner.core.api.domain.solution.PlanningSolution;
@@ -9,16 +7,10 @@ import org.optaplanner.core.api.domain.solution.drools.ProblemFactCollectionProp
 import org.optaplanner.core.api.domain.valuerange.ValueRangeProvider;
 import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
 import java.io.Serializable;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Created by xcy on 2019/5/15.
@@ -122,31 +114,6 @@ public class TimeTablingProblem implements Serializable {
                 if (conflictCount > 0)
                    eduClassConflictList.add(new EduClassConflict(leftEduClass, rightEduClass, (int) conflictCount));
                     //eduClassConflictList.add(new EduClassConflict(leftEduClass, rightEduClass, 1));
-            }
-        }
-/*
-        //与自身构成冲突
-        for (EduClass eduClass : eduClassList) {
-             eduClassConflictList.add(new EduClassConflict(eduClass, eduClass, eduClass.getStudents().size()));
-        }
-*/
-
-        if(!Files.exists(Paths.get("classConflict2.csv"))){
-            try (
-                    BufferedWriter writer = Files.newBufferedWriter(Paths.get("classConflict2.csv"), Charset.forName("gbk"));
-                    CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("leftEduClass","rightEduClass"))
-            ) {
-                eduClassConflictList.forEach(e -> {
-                    try {
-                        csvPrinter.printRecord(e.getLeftEduClass(),e.getRightEduClass());
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
-                });
-                csvPrinter.flush();
-            }
-            catch (Exception e){
-                e.printStackTrace();
             }
         }
         return eduClassConflictList;

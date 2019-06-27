@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <solver>
-    <moveThreadCount>AUTO</moveThreadCount>
+    <moveThreadCount>3</moveThreadCount>
 
     <!-- Domain model configuration -->
     <scanAnnotatedClasses>
@@ -21,7 +21,7 @@
 
     <!-- Optimization algorithms configuration -->
     <termination>
-        <minutesSpentLimit>5</minutesSpentLimit>
+        <minutesSpentLimit>3</minutesSpentLimit>
         <bestScoreFeasible>true</bestScoreFeasible>
     </termination>
 

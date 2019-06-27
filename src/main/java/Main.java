@@ -84,12 +84,10 @@ public class Main {
                 }
             }
         }
-        //基准测试
-/*
+/*        //基准测试
         PlannerBenchmarkFactory benchmarkFactory = PlannerBenchmarkFactory.createFromSolverFactory(solverFactory);
         PlannerBenchmark plannerBenchmark = benchmarkFactory.buildPlannerBenchmark(problem);
-        plannerBenchmark.benchmarkAndShowReportInBrowser();
-*/
+        plannerBenchmark.benchmarkAndShowReportInBrowser();*/
 
     }
 

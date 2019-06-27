@@ -10,7 +10,7 @@ public class Student implements Serializable {
     private static final long serialVersionUID = 5278349298017494453L;
 
     private Integer id;
-   private String name;
+    private String name;
 
     public Integer getId() {
         return id;
@@ -40,4 +40,10 @@ public class Student implements Serializable {
     public int hashCode() {
         return Objects.hash(name);
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+
 }
