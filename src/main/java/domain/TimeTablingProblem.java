@@ -34,7 +34,6 @@ public class TimeTablingProblem implements Serializable {
     @ProblemFactCollectionProperty
     private List<Room> roomList;
 
-//    @ValueRangeProvider(id = "teacherRange")
     @ProblemFactCollectionProperty
     private List<Teacher> teacherList;
 

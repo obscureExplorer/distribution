@@ -18,19 +18,19 @@ import java.util.Objects;
 /**
  * Created by xcy on 2019/6/10.
  */
-public class MultipleChangeMove extends AbstractMove<TimeTablingProblem> {
+public class MultipleTeacherChangeMove extends AbstractMove<TimeTablingProblem> {
 
     private List<LectureOfEduClass> lectures;
     private Teacher toTeacher;
 
-    public MultipleChangeMove(List<LectureOfEduClass> lectures, Teacher toTeacher) {
+    public MultipleTeacherChangeMove(List<LectureOfEduClass> lectures, Teacher toTeacher) {
         this.lectures = lectures;
         this.toTeacher = toTeacher;
     }
 
     @Override
     protected AbstractMove<TimeTablingProblem> createUndoMove(ScoreDirector<TimeTablingProblem> scoreDirector) {
-        return new MultipleChangeMove(lectures,lectures.get(0).getTeacher());
+        return new MultipleTeacherChangeMove(lectures,lectures.get(0).getTeacher());
     }
 
     @Override
@@ -49,7 +49,7 @@ public class MultipleChangeMove extends AbstractMove<TimeTablingProblem> {
 
     @Override
     public Move<TimeTablingProblem> rebase(ScoreDirector<TimeTablingProblem> destinationScoreDirector) {
-        return new MultipleChangeMove(rebaseList(lectures, destinationScoreDirector),
+        return new MultipleTeacherChangeMove(rebaseList(lectures, destinationScoreDirector),
                 destinationScoreDirector.lookUpWorkingObject(toTeacher));
     }
 
@@ -69,7 +69,7 @@ public class MultipleChangeMove extends AbstractMove<TimeTablingProblem> {
 
         if (o == null || getClass() != o.getClass()) return false;
 
-        MultipleChangeMove that = (MultipleChangeMove) o;
+        MultipleTeacherChangeMove that = (MultipleTeacherChangeMove) o;
 
         return new EqualsBuilder()
                 .append(lectures, that.lectures)

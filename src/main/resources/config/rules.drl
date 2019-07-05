@@ -3,12 +3,10 @@ import domain.EduClassConflict;
 import domain.Day;
 import domain.LectureOfEduClass;
 import domain.Period;
-import domain.Student;
 import domain.Teacher;
 import domain.Timeslot;
 import domain.EduClass;
 import domain.Room;
-import domain.LectureOfEduClass;
 
 global HardSoftScoreHolder scoreHolder;
 

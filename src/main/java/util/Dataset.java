@@ -16,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -157,11 +158,15 @@ public class Dataset {
         //构造lectures数据--假定行政班对应必修课，学考班对应学考科目，会考班对应会考科目
         List<LectureOfEduClass> lectureOfEduClasses = new ArrayList<>();
 
+
+        Iterator<Room> roomIterator = rooms.iterator();
         id = 0;
         for (EduClass eduClass : eduClassList) {
             int type = eduClass.getType();
             Map<Subject, List<Teacher>> subjects = subjectMap.get(type);
             if(type == 0){
+                //取一个教室给这个班级
+                Room room = roomIterator.next();
                 for (Subject subject : subjects.keySet()) {
                     int lectureSize = subject.getLectureSize();
                     for (int i = 0; i < lectureSize; i++) {
@@ -170,6 +175,9 @@ public class Dataset {
                         lecture.setEduClass(eduClass);
                         lecture.setLectureIndex(i);
                         lecture.setSubject(subject);
+                        //行政班固定教室
+                        lecture.setRoom(room);
+                        lecture.setRoomUnmovable(true);
                         lectureOfEduClasses.add(lecture);
                     }
                 }

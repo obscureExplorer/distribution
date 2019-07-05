@@ -18,13 +18,13 @@ import java.util.Objects;
 /**
  * Created by xcy on 2019/6/10.
  */
-public class MultipleSwapMove extends AbstractMove<TimeTablingProblem> {
+public class MultipleTeacherSwapMove extends AbstractMove<TimeTablingProblem> {
 
     private Teacher fromTeacher;
     private List<LectureOfEduClass> lectures;
     private Teacher toTeacher;
 
-    public MultipleSwapMove(Teacher fromTeacher, List<LectureOfEduClass> lectures, Teacher toTeacher) {
+    public MultipleTeacherSwapMove(Teacher fromTeacher, List<LectureOfEduClass> lectures, Teacher toTeacher) {
         this.fromTeacher = fromTeacher;
         this.lectures = lectures;
         this.toTeacher = toTeacher;
@@ -32,7 +32,7 @@ public class MultipleSwapMove extends AbstractMove<TimeTablingProblem> {
 
     @Override
     protected AbstractMove<TimeTablingProblem> createUndoMove(ScoreDirector<TimeTablingProblem> scoreDirector) {
-        return new MultipleSwapMove(toTeacher,lectures,fromTeacher);
+        return new MultipleTeacherSwapMove(toTeacher,lectures,fromTeacher);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class MultipleSwapMove extends AbstractMove<TimeTablingProblem> {
 
     @Override
     public Move<TimeTablingProblem> rebase(ScoreDirector<TimeTablingProblem> destinationScoreDirector) {
-        return new MultipleSwapMove(destinationScoreDirector.lookUpWorkingObject(fromTeacher),
+        return new MultipleTeacherSwapMove(destinationScoreDirector.lookUpWorkingObject(fromTeacher),
                 rebaseList(lectures, destinationScoreDirector),
                 destinationScoreDirector.lookUpWorkingObject(toTeacher));
     }
@@ -75,7 +75,7 @@ public class MultipleSwapMove extends AbstractMove<TimeTablingProblem> {
 
         if (o == null || getClass() != o.getClass()) return false;
 
-        MultipleSwapMove that = (MultipleSwapMove) o;
+        MultipleTeacherSwapMove that = (MultipleTeacherSwapMove) o;
 
         return new EqualsBuilder()
                 .append(fromTeacher, that.fromTeacher)

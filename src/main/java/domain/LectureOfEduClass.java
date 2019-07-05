@@ -1,7 +1,6 @@
 package domain;
 
 import org.optaplanner.core.api.domain.entity.PlanningEntity;
-import org.optaplanner.core.api.domain.entity.PlanningPin;
 import org.optaplanner.core.api.domain.lookup.PlanningId;
 import org.optaplanner.core.api.domain.valuerange.ValueRangeProvider;
 import org.optaplanner.core.api.domain.variable.PlanningVariable;
@@ -21,7 +20,6 @@ public class LectureOfEduClass implements Comparable<LectureOfEduClass>, Seriali
     @PlanningId
     private Long id;
     private int lectureIndex;
-    private boolean pinned;
     private EduClass eduClass;
     private Subject subject;
 
@@ -29,6 +27,10 @@ public class LectureOfEduClass implements Comparable<LectureOfEduClass>, Seriali
     private Period period;
     private Room room;
     private Teacher teacher;
+
+    private boolean periodUnmovable;
+    private boolean roomUnmovable;
+    private boolean teacherUnmovable;
 
     public int getLectureIndex() {
         return lectureIndex;
@@ -38,14 +40,6 @@ public class LectureOfEduClass implements Comparable<LectureOfEduClass>, Seriali
         this.lectureIndex = lectureIndex;
     }
 
-    @PlanningPin
-    public boolean isPinned() {
-        return pinned;
-    }
-
-    public void setPinned(boolean pinned) {
-        this.pinned = pinned;
-    }
 
     @PlanningVariable(valueRangeProviderRefs = {"periodRange"})
     public Period getPeriod() {
@@ -77,20 +71,6 @@ public class LectureOfEduClass implements Comparable<LectureOfEduClass>, Seriali
 
     public void setTeacher(Teacher teacher) {
         this.teacher = teacher;
-    }
-
-    public Day getDay() {
-        if (period == null) {
-            return null;
-        }
-        return period.getDay();
-    }
-
-    public int getTimeslotIndex() {
-        if (period == null) {
-            return Integer.MIN_VALUE;
-        }
-        return period.getTimeslot().getTimeslotIndex();
     }
 
     public EduClass getEduClass() {
@@ -143,4 +123,27 @@ public class LectureOfEduClass implements Comparable<LectureOfEduClass>, Seriali
         return "<" + id + "," + eduClass + "," + subject + ", " + teacher +"," + lectureIndex +">";
     }
 
+    public boolean isPeriodUnmovable() {
+        return periodUnmovable;
+    }
+
+    public void setPeriodUnmovable(boolean periodUnmovable) {
+        this.periodUnmovable = periodUnmovable;
+    }
+
+    public boolean isRoomUnmovable() {
+        return roomUnmovable;
+    }
+
+    public void setRoomUnmovable(boolean roomUnmovable) {
+        this.roomUnmovable = roomUnmovable;
+    }
+
+    public boolean isTeacherUnmovable() {
+        return teacherUnmovable;
+    }
+
+    public void setTeacherUnmovable(boolean teacherUnmovable) {
+        this.teacherUnmovable = teacherUnmovable;
+    }
 }

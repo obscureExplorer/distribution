@@ -29,31 +29,69 @@
     <customPhaseCommandClass>initializer.TeacherInitializer</customPhaseCommandClass>
    </customPhase>
 
+   <!--教室已经固定的班级，比如行政班 -->
    <constructionHeuristic>
-        <constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>
-        <cartesianProductMoveSelector>
-            <changeMoveSelector>
-                <valueSelector variableName="period"/>
-            </changeMoveSelector>
-            <changeMoveSelector>
-                <valueSelector variableName="room"/>
-            </changeMoveSelector>
-        </cartesianProductMoveSelector>
+        <!--<constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>-->
+        <queuedEntityPlacer>
+            <entitySelector id="placerEntitySelector">
+                <cacheType>PHASE</cacheType>
+                <selectionOrder>SORTED</selectionOrder>
+                <sorterManner>DECREASING_DIFFICULTY</sorterManner>
+                <filterClass>filter.LectureRoomUnmovableFilter</filterClass>
+            </entitySelector>
+           <cartesianProductMoveSelector>
+                <changeMoveSelector>
+                    <entitySelector mimicSelectorRef="placerEntitySelector" />
+                    <valueSelector variableName="period"/>
+                </changeMoveSelector>
+            </cartesianProductMoveSelector>
+         </queuedEntityPlacer>
+    </constructionHeuristic>
+
+    <!--教室不固定的班级，比如教学班 -->
+   <constructionHeuristic>
+        <!--<constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>-->
+       <queuedEntityPlacer>
+            <entitySelector id="placerEntitySelector">
+                <cacheType>PHASE</cacheType>
+                <selectionOrder>SORTED</selectionOrder>
+                <sorterManner>DECREASING_DIFFICULTY</sorterManner>
+                <filterClass>filter.LectureRoomMovableFilter</filterClass>
+            </entitySelector>
+           <cartesianProductMoveSelector>
+                <changeMoveSelector>
+                    <entitySelector mimicSelectorRef="placerEntitySelector" />
+                    <valueSelector variableName="period"/>
+                </changeMoveSelector>
+                 <changeMoveSelector>
+                    <entitySelector mimicSelectorRef="placerEntitySelector" />
+                    <valueSelector variableName="room"/>
+                </changeMoveSelector>
+            </cartesianProductMoveSelector>
+         </queuedEntityPlacer>
     </constructionHeuristic>
 
    <localSearch>
        <unionMoveSelector>
          <changeMoveSelector>
+             <!-- 过滤掉那些教室不能更改的班级，比如行政班 -->
+             <entitySelector>
+                 <filterClass>filter.LectureRoomMovableFilter</filterClass>
+             </entitySelector>
              <valueSelector variableName="room"/>
          </changeMoveSelector>
-          <changeMoveSelector>
+         <changeMoveSelector>
              <valueSelector variableName="period"/>
          </changeMoveSelector>
          <swapMoveSelector>
              <variableNameInclude>period</variableNameInclude>
-             <variableNameInclude>room</variableNameInclude>
              <filterClass>filter.DifferentTeacherSwapMoveFilter</filterClass>
          </swapMoveSelector>
+         <swapMoveSelector>
+             <variableNameInclude>room</variableNameInclude>
+             <filterClass>filter.DifferentTeacherAndUnmovableRoomSwapMoveFilter</filterClass>
+         </swapMoveSelector>
+
          <moveListFactory>
             <cacheType>PHASE</cacheType>
             <moveListFactoryClass>move.factory.MultipleChangeMoveFactory</moveListFactoryClass>
