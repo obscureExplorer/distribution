@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 /**
  * Created by xcy on 2019/6/6.
  */
-public class MultipleSwapMoveFactory implements MoveListFactory<TimeTablingProblem> {
+public class MultipleTeacherSwapMoveFactory implements MoveListFactory<TimeTablingProblem> {
 
 
     //分配老师

@@ -1,7 +1,7 @@
 package move;
 
 import domain.LectureOfEduClass;
-import domain.Teacher;
+import domain.Room;
 import domain.TimeTablingProblem;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -18,45 +18,39 @@ import java.util.Objects;
 /**
  * Created by xcy on 2019/6/10.
  */
-public class MultipleTeacherSwapMove extends AbstractMove<TimeTablingProblem> {
+public class MultipleRoomChangeMove extends AbstractMove<TimeTablingProblem> {
 
-    private Teacher fromTeacher;
     private List<LectureOfEduClass> lectures;
-    private Teacher toTeacher;
+    private Room toRoom;
 
-    public MultipleTeacherSwapMove(Teacher fromTeacher, List<LectureOfEduClass> lectures, Teacher toTeacher) {
-        this.fromTeacher = fromTeacher;
+    public MultipleRoomChangeMove(List<LectureOfEduClass> lectures, Room toRoom) {
         this.lectures = lectures;
-        this.toTeacher = toTeacher;
+        this.toRoom = toRoom;
     }
 
     @Override
     protected AbstractMove<TimeTablingProblem> createUndoMove(ScoreDirector<TimeTablingProblem> scoreDirector) {
-        return new MultipleTeacherSwapMove(toTeacher,lectures,fromTeacher);
+        return new MultipleRoomChangeMove(lectures,lectures.get(0).getRoom());
     }
 
     @Override
     protected void doMoveOnGenuineVariables(ScoreDirector<TimeTablingProblem> scoreDirector) {
         for (LectureOfEduClass lecture : lectures) {
-            if(!lecture.getTeacher().equals(fromTeacher)){
-                throw new IllegalStateException("LectureOfEduClass的teacher应该都为fromTeacher");
-            }
-            scoreDirector.beforeVariableChanged(lecture, "teacher");
-            lecture.setTeacher(toTeacher);
-            scoreDirector.afterVariableChanged(lecture, "teacher");
+            scoreDirector.beforeVariableChanged(lecture, "room");
+            lecture.setRoom(toRoom);
+            scoreDirector.afterVariableChanged(lecture, "room");
         }
     }
 
     @Override
     public boolean isMoveDoable(ScoreDirector<TimeTablingProblem> scoreDirector) {
-        return !Objects.equals(fromTeacher, toTeacher);
+        return !Objects.equals(lectures.get(0).getRoom(), toRoom);
     }
 
     @Override
     public Move<TimeTablingProblem> rebase(ScoreDirector<TimeTablingProblem> destinationScoreDirector) {
-        return new MultipleTeacherSwapMove(destinationScoreDirector.lookUpWorkingObject(fromTeacher),
-                rebaseList(lectures, destinationScoreDirector),
-                destinationScoreDirector.lookUpWorkingObject(toTeacher));
+        return new MultipleRoomChangeMove(rebaseList(lectures, destinationScoreDirector),
+                destinationScoreDirector.lookUpWorkingObject(toRoom));
     }
 
     @Override
@@ -66,7 +60,7 @@ public class MultipleTeacherSwapMove extends AbstractMove<TimeTablingProblem> {
 
     @Override
     public Collection<?> getPlanningValues() {
-        return Arrays.asList(fromTeacher, toTeacher);
+        return Arrays.asList(toRoom);
     }
 
     @Override
@@ -75,27 +69,25 @@ public class MultipleTeacherSwapMove extends AbstractMove<TimeTablingProblem> {
 
         if (o == null || getClass() != o.getClass()) return false;
 
-        MultipleTeacherSwapMove that = (MultipleTeacherSwapMove) o;
+        MultipleRoomChangeMove that = (MultipleRoomChangeMove) o;
 
         return new EqualsBuilder()
-                .append(fromTeacher, that.fromTeacher)
                 .append(lectures, that.lectures)
-                .append(toTeacher, that.toTeacher)
+                .append(toRoom, that.toRoom)
                 .isEquals();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(fromTeacher)
                 .append(lectures)
-                .append(toTeacher)
+                .append(toRoom)
                 .toHashCode();
     }
 
     @Override
     public String toString() {
-        return lectures + "{? ->" + toTeacher + "}";
+        return lectures + "{? ->" + toRoom + "}";
     }
 
 }

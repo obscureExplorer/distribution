@@ -43,6 +43,8 @@ public class TimeTablingProblem implements Serializable {
     @PlanningEntityCollectionProperty
     private List<LectureOfEduClass> lectureList;
 
+    private List<Subject> subjectList;
+
     private Map<Integer, Map<Subject, List<Teacher>>> subjectMap;
 
     @PlanningScore
@@ -140,5 +142,13 @@ public class TimeTablingProblem implements Serializable {
 
     public void setSubjectMap(Map<Integer, Map<Subject, List<Teacher>>> subjectMap) {
         this.subjectMap = subjectMap;
+    }
+
+    public List<Subject> getSubjectList() {
+        return subjectList;
+    }
+
+    public void setSubjectList(List<Subject> subjectList) {
+        this.subjectList = subjectList;
     }
 }

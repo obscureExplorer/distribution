@@ -7,6 +7,9 @@ import domain.Teacher;
 import domain.Timeslot;
 import domain.EduClass;
 import domain.Room;
+import domain.EduClass;
+import domain.Day;
+//global org.optaplanner.core.api.score.buildin.hardmediumsoft.HardMediumSoftScoreHolder scoreHolder2;
 
 global HardSoftScoreHolder scoreHolder;
 
@@ -68,35 +71,32 @@ rule "maxNum"
         scoreHolder.addHardConstraintMatch(kcontext, (int)($teacher.getMaxClassNum() - $eduClassCount ));
 end
 
-
 /*
-rule "sameRoom"
-    when
-        $administrativeClass : EduClass(type == 0)
-        accumulate (
-            $room : Room()
-            and exists Lecture(room == $room,eduClass == $administrativeClass,period != null);
-            $roomCount : count($room);
-            $roomCount > 1
-        )
-    then
-        scoreHolder.addSoftConstraintMatch(kcontext, 1-$roomCount.intValue());
-end
-*/
-
-
 // 弱约束条件
-//同一个course的lecture应该在同一间教室
-/*
+//同一个教学班尽量在同一个班级上课
 rule "roomStability"
     when
-        $course : Course(type != 0)
+        $eduClass : EduClass(type != 0)
         accumulate (
             $room : Room()
-            and exists Lecture(course == $course, room == $room);
+            and exists LectureOfEduClass(eduClass == $eduClass, room == $room);
             $roomCount : count($room);
             $roomCount > 1
         )
     then
         scoreHolder.addSoftConstraintMatch(kcontext, -($roomCount.intValue() - 1));
-end*/
+end
+
+rule "fairness"
+    when
+        $eduClass : EduClass()
+        accumulate (
+            $day : Day()
+            and LectureOfEduClass(eduClass == $eduClass,period != null, period.day == $day);
+            $dayCount : count($day)
+        )
+    then
+        //scoreHolder.addSoftConstraintMatch(kcontext, -($dayCount.intValue()  ));
+        System.out.println($dayCount);
+end
+*/

@@ -22,7 +22,8 @@
     <!-- Optimization algorithms configuration -->
     <termination>
         <minutesSpentLimit>3</minutesSpentLimit>
-        <bestScoreFeasible>true</bestScoreFeasible>
+        <bestScoreLimit>0hard/0soft</bestScoreLimit>
+        <!--<bestScoreFeasible>true</bestScoreFeasible>-->
     </termination>
 
    <customPhase>
@@ -39,12 +40,10 @@
                 <sorterManner>DECREASING_DIFFICULTY</sorterManner>
                 <filterClass>filter.LectureRoomUnmovableFilter</filterClass>
             </entitySelector>
-           <cartesianProductMoveSelector>
-                <changeMoveSelector>
-                    <entitySelector mimicSelectorRef="placerEntitySelector" />
-                    <valueSelector variableName="period"/>
-                </changeMoveSelector>
-            </cartesianProductMoveSelector>
+            <changeMoveSelector>
+                <entitySelector mimicSelectorRef="placerEntitySelector" />
+                <valueSelector variableName="period"/>
+            </changeMoveSelector>
          </queuedEntityPlacer>
     </constructionHeuristic>
 
@@ -58,23 +57,22 @@
                 <sorterManner>DECREASING_DIFFICULTY</sorterManner>
                 <filterClass>filter.LectureRoomMovableFilter</filterClass>
             </entitySelector>
-           <cartesianProductMoveSelector>
-                <changeMoveSelector>
-                    <entitySelector mimicSelectorRef="placerEntitySelector" />
-                    <valueSelector variableName="period"/>
-                </changeMoveSelector>
-                 <changeMoveSelector>
-                    <entitySelector mimicSelectorRef="placerEntitySelector" />
-                    <valueSelector variableName="room"/>
-                </changeMoveSelector>
-            </cartesianProductMoveSelector>
+            <changeMoveSelector>
+                <entitySelector mimicSelectorRef="placerEntitySelector" />
+                <valueSelector variableName="room"/>
+            </changeMoveSelector>
+            <changeMoveSelector>
+                <entitySelector mimicSelectorRef="placerEntitySelector" />
+                <valueSelector variableName="period"/>
+            </changeMoveSelector>
          </queuedEntityPlacer>
     </constructionHeuristic>
 
-   <localSearch>
+
+<!--    <localSearch>
        <unionMoveSelector>
          <changeMoveSelector>
-             <!-- 过滤掉那些教室不能更改的班级，比如行政班 -->
+             &lt;!&ndash; 过滤掉那些教室不能更改的班级，比如行政班 &ndash;&gt;
              <entitySelector>
                  <filterClass>filter.LectureRoomMovableFilter</filterClass>
              </entitySelector>
@@ -94,19 +92,62 @@
 
          <moveListFactory>
             <cacheType>PHASE</cacheType>
-            <moveListFactoryClass>move.factory.MultipleChangeMoveFactory</moveListFactoryClass>
+            <moveListFactoryClass>move.factory.MultipleTeacherChangeMoveFactory</moveListFactoryClass>
          </moveListFactory>
          <moveListFactory>
             <cacheType>STEP</cacheType>
-            <moveListFactoryClass>move.factory.MultipleSwapMoveFactory</moveListFactoryClass>
+            <moveListFactoryClass>move.factory.MultipleTeacherSwapMoveFactory</moveListFactoryClass>
          </moveListFactory>
        </unionMoveSelector>
 
        <acceptor>
-         <lateAcceptanceSize>800</lateAcceptanceSize>
+         <lateAcceptanceSize>600</lateAcceptanceSize>
        </acceptor>
        <forager>
          <acceptedCountLimit>4</acceptedCountLimit>
        </forager>
+     </localSearch>-->
+
+
+   <localSearch>
+       <unionMoveSelector>
+         <!-- 时间 -->
+         <changeMoveSelector>
+             <valueSelector variableName="period"/>
+         </changeMoveSelector>
+         <swapMoveSelector>
+             <variableNameInclude>period</variableNameInclude>
+             <filterClass>filter.DifferentTeacherSwapMoveFilter</filterClass>
+         </swapMoveSelector>
+
+         <!-- 地点 -->
+         <moveListFactory>
+            <cacheType>PHASE</cacheType>
+            <moveListFactoryClass>move.factory.MultipleRoomChangeMoveFactory</moveListFactoryClass>
+         </moveListFactory>
+
+         <moveListFactory>
+            <cacheType>STEP</cacheType>
+            <moveListFactoryClass>move.factory.MultipleRoomSwapMoveFactory</moveListFactoryClass>
+         </moveListFactory>
+
+           <!--教师-->
+         <moveListFactory>
+            <cacheType>PHASE</cacheType>
+            <moveListFactoryClass>move.factory.MultipleTeacherChangeMoveFactory</moveListFactoryClass>
+         </moveListFactory>
+         <moveListFactory>
+            <cacheType>STEP</cacheType>
+            <moveListFactoryClass>move.factory.MultipleTeacherSwapMoveFactory</moveListFactoryClass>
+         </moveListFactory>
+       </unionMoveSelector>
+
+       <acceptor>
+         <lateAcceptanceSize>600</lateAcceptanceSize>
+       </acceptor>
+       <forager>
+         <acceptedCountLimit>4</acceptedCountLimit>
+       </forager>
+
      </localSearch>
 </solver>
