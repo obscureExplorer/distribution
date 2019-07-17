@@ -3,11 +3,14 @@ package initializer;
 import domain.EduClass;
 import domain.LectureOfEduClass;
 import domain.Subject;
+import domain.SubjectTypeEnum;
 import domain.Teacher;
+import domain.TeacherAssignment;
 import domain.TimeTablingProblem;
 import org.optaplanner.core.impl.phase.custom.AbstractCustomPhaseCommand;
 import org.optaplanner.core.impl.score.director.ScoreDirector;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -22,15 +25,18 @@ public class TeacherInitializer  extends AbstractCustomPhaseCommand<TimeTablingP
     public void changeWorkingSolution(ScoreDirector<TimeTablingProblem> scoreDirector) {
         TimeTablingProblem problem = scoreDirector.getWorkingSolution();
         List<LectureOfEduClass> lectures = problem.getLectureList();
-        Map<Integer, Map<Subject, List<Teacher>>> subjectMap = problem.getSubjectMap();
-        Map<Subject, Map<EduClass, List<LectureOfEduClass>>> lectureMap = lectures.stream().collect(Collectors.groupingBy(LectureOfEduClass::getSubject, Collectors.groupingBy(LectureOfEduClass::getEduClass)));
+        //过滤掉老师不能变动的
+        Map<Subject, Map<EduClass, List<LectureOfEduClass>>> lectureMap = lectures.stream().filter(l -> !l.isTeacherUnmovable()).collect(Collectors.groupingBy(LectureOfEduClass::getSubject, Collectors.groupingBy(LectureOfEduClass::getEduClass)));
+        //查找科目-老师-开班数对应关系
+        Map<Subject, List<TeacherAssignment>> assignmentMap = problem.getTeacherAssignmentList().stream().collect(Collectors.groupingBy(TeacherAssignment::getSubject));
 
         for (Subject subject : lectureMap.keySet()) {
-            List<Teacher> teachers = subjectMap.get(subject.getType()).get(subject);
             Queue<Teacher> teacherQueue = new LinkedList<>();
-            for (Teacher teacher : teachers) {
-                for (int i = 0; i < teacher.getMaxClassNum(); i++) {
-                    teacherQueue.add(teacher);
+            List<TeacherAssignment> assignments = assignmentMap.get(subject);
+            for (TeacherAssignment assignment : assignments) {
+                int maxClassNo = assignment.getMaxClassNo();
+                for (int i = 0; i < maxClassNo; i++) {
+                    teacherQueue.add(assignment.getTeacher());
                 }
             }
             for (EduClass eduClass : lectureMap.get(subject).keySet()) {

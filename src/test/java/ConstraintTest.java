@@ -1,5 +1,6 @@
 import domain.Day;
 import domain.EduClass;
+import domain.EduClassTypeEnum;
 import domain.LectureOfEduClass;
 import domain.Period;
 import domain.Room;
@@ -10,7 +11,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.optaplanner.core.api.solver.SolverFactory;
-import org.optaplanner.test.impl.score.buildin.hardsoft.HardSoftScoreVerifier;
+import org.optaplanner.test.impl.score.buildin.hardmediumsoft.HardMediumSoftScoreVerifier;
 import util.Dataset;
 
 import java.io.FileInputStream;
@@ -25,10 +26,8 @@ import java.util.List;
 
 public class ConstraintTest {
     private static TimeTablingProblem problem;
-    private HardSoftScoreVerifier<TimeTablingProblem> scoreVerifier = new
-            HardSoftScoreVerifier<>(
-            SolverFactory.createFromXmlResource(
-                    "config/solverConfig.xml"));
+    private HardMediumSoftScoreVerifier<TimeTablingProblem> scoreVerifier = new HardMediumSoftScoreVerifier<>(
+            SolverFactory.createFromXmlResource("config/solverConfig.xml"));
 
     @BeforeClass
     public static void beforeClass() throws IOException {
@@ -54,7 +53,26 @@ public class ConstraintTest {
             room.setName(record.get("room"));
             EduClass eduClass = new EduClass();
             eduClass.setName(record.get("eduClass"));
-            eduClass.setType(Integer.parseInt(record.get("eduClassType")));
+
+            String typeName = record.get("eduClassType");
+            EduClassTypeEnum type;
+            switch (typeName){
+                case "行政班":
+                    type = EduClassTypeEnum.ADMINISTRATIVE;
+                    break;
+                case "会考班":
+                    type = EduClassTypeEnum.ACADEMIC;
+                    break;
+                case "高考班":
+                    type = EduClassTypeEnum.COLLEGE;
+                    break;
+                case "合班":
+                    type = EduClassTypeEnum.UNION;
+                    break;
+                default:
+                    type = null;
+            }
+            eduClass.setType(type);
 
             LectureOfEduClass lecture = new LectureOfEduClass();
             lecture.setId(Long.parseLong(record.get("id")));

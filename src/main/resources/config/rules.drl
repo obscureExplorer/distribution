@@ -9,9 +9,16 @@ import domain.EduClass;
 import domain.Room;
 import domain.EduClass;
 import domain.Day;
-//global org.optaplanner.core.api.score.buildin.hardmediumsoft.HardMediumSoftScoreHolder scoreHolder2;
+import domain.Subject;
+import domain.PeriodPenalty;
+import domain.ResourceTypeEnum;
+import domain.RuleTypeEnum;
+import domain.AdjacentPenalty;
+import domain.AdjacentLecture;
+import domain.TeacherAssignment;
+global org.optaplanner.core.api.score.buildin.hardmediumsoft.HardMediumSoftScoreHolder scoreHolder;
 
-global HardSoftScoreHolder scoreHolder;
+//global HardSoftScoreHolder scoreHolder;
 
 // 强约束条件
 // 同个时间点，有上课的不同班级之间存在冲突
@@ -58,45 +65,93 @@ rule "roomOccupancy"
         scoreHolder.addHardConstraintMatch(kcontext, -1);
 end
 
-//不能超过老师的最大授课班级数
+//不能超过老师对应科目的最大授课班级数
 rule "maxNum"
     when
-        $teacher : Teacher()
+        TeacherAssignment($teacher: teacher,$subject : subject, $maxClassNo : maxClassNo)
         accumulate(
-            $eduClass : EduClass() and exists LectureOfEduClass(eduClass == $eduClass,teacher == $teacher);
+            $eduClass : EduClass() and exists LectureOfEduClass(eduClass == $eduClass,teacher == $teacher, subject == $subject);
             $eduClassCount : count($eduClass);
-            $eduClassCount > $teacher.maxClassNum
+            $eduClassCount > $maxClassNo
         )
     then
-        scoreHolder.addHardConstraintMatch(kcontext, (int)($teacher.getMaxClassNum() - $eduClassCount ));
+        scoreHolder.addHardConstraintMatch(kcontext, (int)($maxClassNo - $eduClassCount));
 end
 
-/*
-// 弱约束条件
-//同一个教学班尽量在同一个班级上课
-rule "roomStability"
+//中等约束条件
+//班级不排课
+rule "eduClassUnavailablePeriod"
     when
-        $eduClass : EduClass(type != 0)
-        accumulate (
-            $room : Room()
-            and exists LectureOfEduClass(eduClass == $eduClass, room == $room);
-            $roomCount : count($room);
-            $roomCount > 1
-        )
+        $unavailablePeriod : PeriodPenalty($name : name, $subjectName : subjectName, $period : period,resourceType == ResourceTypeEnum.EDUCLASS,ruleType == RuleTypeEnum.UNAVAILABILITY)
+        LectureOfEduClass(eduClass.name == $name,subject.name == $subjectName,period == $period)
     then
-        scoreHolder.addSoftConstraintMatch(kcontext, -($roomCount.intValue() - 1));
+        scoreHolder.addMediumConstraintMatch(kcontext,-1);
 end
-
+//教师不排课
+rule "teacherUnavailablePeriod"
+    when
+        $unavailablePeriod : PeriodPenalty($name : name, $subjectName : subjectName, $period : period,resourceType == ResourceTypeEnum.TEACHER,ruleType == RuleTypeEnum.UNAVAILABILITY)
+        LectureOfEduClass(teacher.name == $name,subject.name == $subjectName, period == $period)
+    then
+        scoreHolder.addMediumConstraintMatch(kcontext,-1);
+end
+//班级要排课
+rule "eduClassAvailablePeriod"
+    when
+        $availablePeriod : PeriodPenalty($name : name, $subjectName : subjectName, $period : period,resourceType == ResourceTypeEnum.EDUCLASS,ruleType == RuleTypeEnum.AVAILABILITY)
+        not LectureOfEduClass(eduClass.name == $name,subject.name == $subjectName, period == $period)
+    then
+        scoreHolder.addMediumConstraintMatch(kcontext,-1);
+end
+// 弱约束条件
+// 班级课时分散
 rule "fairness"
     when
+        $day : Day()
+        $subject: Subject()
         $eduClass : EduClass()
-        accumulate (
-            $day : Day()
-            and LectureOfEduClass(eduClass == $eduClass,period != null, period.day == $day);
-            $dayCount : count($day)
+        accumulate(
+            $lecture : LectureOfEduClass(period != null, subject == $subject, period.day == $day, eduClass == $eduClass);
+            $lectureCount : count($lecture);
+            $lectureCount > 0
         )
     then
-        //scoreHolder.addSoftConstraintMatch(kcontext, -($dayCount.intValue()  ));
-        System.out.println($dayCount);
+        scoreHolder.addSoftConstraintMatch(kcontext, -( $lectureCount.intValue() * $lectureCount.intValue() ));
+end
+/*
+//todo 同一个老师带的不同班级，尽量都在同一天上课
+rule "sameDistribution"
+    when
+        $teacher : Teacher()
+        $day : Day()
+        LectureOfEduClass(teacher == $teacher,$eduClass : eduClass,period.day == $day)
+    then
+
+end
+*/
+/*
+
+rule "insertAdjacent"
+    salience 1
+    when
+        $subjectAdjacent : AdjacentPenalty($subjectName : subjectName, $teacherName : name)
+        $period : Period()
+        LectureOfEduClass(subject.name == $subjectName, teacher.name == $teacherName, $period == period)
+        LectureOfEduClass(subject.name == $subjectName, teacher.name == $teacherName, period.timeslot.timeslotIndex == $period.timeslot.timeslotIndex + 1,period.day == $period.day)
+    then
+        insertLogical(new AdjacentLecture(subjectName,$teacherName))
+end
+
+//连堂
+rule "adjacent"
+    when
+        $subjectAdjacent : AdjacentPenalty($subjectName : subjectName, $teacherName : name, $count : count)
+        accumulate(
+            $adjacentLecture : AdjacentLecture(subjectName == $subjectName, teacherName == $teacherName);
+            $currentCount : count($adjacentLecture);
+            $currentCount < $count
+        )
+    then
+        scoreHolder.addSoftConstraintMatch(kcontext, $currentCount - $count);
 end
 */

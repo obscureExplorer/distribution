@@ -18,11 +18,8 @@ public class EduClass implements Serializable,Comparable<EduClass> {
     private String name;
     private List<Student> students;
     private String subjectName;
-    //0--行政班，1--选考的教学班，2--学考的教学班
-    private int type;
 
-    //展示结果用的
-    private int index;
+    private EduClassTypeEnum type;
 
 
     public Long getId() {
@@ -33,11 +30,11 @@ public class EduClass implements Serializable,Comparable<EduClass> {
         this.id = id;
     }
 
-    public int getType() {
+    public EduClassTypeEnum getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(EduClassTypeEnum type) {
         this.type = type;
     }
 
@@ -60,14 +57,6 @@ public class EduClass implements Serializable,Comparable<EduClass> {
     @Override
     public String toString() {
         return name;
-    }
-
-    public int getIndex() {
-        return index;
-    }
-
-    public void setIndex(int index) {
-        this.index = index;
     }
 
     @Override

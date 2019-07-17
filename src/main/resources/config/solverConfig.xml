@@ -21,8 +21,8 @@
 
     <!-- Optimization algorithms configuration -->
     <termination>
-        <minutesSpentLimit>3</minutesSpentLimit>
-        <bestScoreLimit>0hard/0soft</bestScoreLimit>
+        <minutesSpentLimit>5</minutesSpentLimit>
+<!--        <bestScoreLimit>0hard/0soft</bestScoreLimit>-->
         <!--<bestScoreFeasible>true</bestScoreFeasible>-->
     </termination>
 

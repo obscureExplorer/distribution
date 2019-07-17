@@ -7,9 +7,7 @@ import domain.Teacher;
 import domain.TimeTablingProblem;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.optaplanner.benchmark.api.PlannerBenchmark;
-import org.optaplanner.benchmark.api.PlannerBenchmarkFactory;
-import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore;
+import org.optaplanner.core.api.score.Score;
 import org.optaplanner.core.api.score.constraint.ConstraintMatch;
 import org.optaplanner.core.api.score.constraint.ConstraintMatchTotal;
 import org.optaplanner.core.api.solver.Solver;
@@ -38,18 +36,25 @@ public class Main {
         Solver<TimeTablingProblem> solver = solverFactory.buildSolver();
         // 初始化数据
         TimeTablingProblem problem = new TimeTablingProblem();
-        Dataset.createDataset(problem,"dataset/5");
+        Dataset.createDataset(problem, "dataset/5");
+        //添加listener，用来监听分值发生变化的事件
+        solver.addEventListener(event -> {
+            // 忽略不可行的解
+            if (event.getNewBestSolution().getScore().isFeasible()) {
+                System.out.println(event.getNewBestScore().toString());
+            }
+        });
+
         // 开始排课
         TimeTablingProblem solvedProblem = solver.solve(problem);
 
-        //System.out.println(solver.explainBestScore());
         // 写入结果
         // 如果将以下的这些字段作为数据库表字段，那么这张表不满足2nf
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
         String time = formatter.format(LocalDateTime.now());
         try (
                 BufferedWriter writer = Files.newBufferedWriter(Paths.get("result_" + time + ".csv"), Charset.forName("gbk"));
-                CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("id", "name", "teacher", "type", "maxClassNum", "lectureIndex", "eduClass","eduClassType", "period", "room"))
+                CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("id", "name", "teacher", "type", "lectureIndex", "eduClass", "eduClassType", "period", "room"))
         ) {
             List<LectureOfEduClass> solvedLectures = solvedProblem.getLectureList();
             for (LectureOfEduClass solvedLecture : solvedLectures) {
@@ -58,9 +63,9 @@ public class Main {
                 Room room = solvedLecture.getRoom();
                 Subject subject = solvedLecture.getSubject();
                 Teacher teacher = solvedLecture.getTeacher();
-                csvPrinter.printRecord(solvedLecture.getId(),subject.getName(), teacher.getName(), subject.getType(),
-                        teacher.getMaxClassNum(), solvedLecture.getLectureIndex(),
-                        eduClass,eduClass.getType(), period, room);
+                csvPrinter.printRecord(solvedLecture.getId(), subject.getName(), teacher.getName(), subject.getType()
+                        ,solvedLecture.getLectureIndex(),
+                        eduClass, eduClass.getType(), period, room);
             }
             csvPrinter.flush();
         }
@@ -73,14 +78,14 @@ public class Main {
             for (ConstraintMatchTotal constraintMatchTotal : constraintMatchTotals) {
                 String constraintName = constraintMatchTotal.getConstraintName();
                 // 这条被打破的规则对分值的影响
-                HardSoftScore totalScore = (HardSoftScore) constraintMatchTotal.getScore();
+                Score totalScore =  constraintMatchTotal.getScore();
                 // 哪些对象打破了这条规则
                 Set<ConstraintMatch> constraintMatchSet = constraintMatchTotal.getConstraintMatchSet();
-                System.out.println(totalScore.toShortString() + " constraint(" + constraintName + ") has " + constraintMatchSet.size() + " matches" );
+                System.out.println(totalScore.toShortString() + " constraint(" + constraintName + ") has " + constraintMatchSet.size() + " matches");
                 for (ConstraintMatch constraintMatch : constraintMatchSet) {
                     List<Object> justificationList = constraintMatch.getJustificationList();
-                    HardSoftScore score = (HardSoftScore) constraintMatch.getScore();
-                    System.out.println(score.toShortString() + justificationList.toString() );
+                    Score score = constraintMatch.getScore();
+                    System.out.println(score.toShortString() + justificationList.toString());
                 }
             }
         }

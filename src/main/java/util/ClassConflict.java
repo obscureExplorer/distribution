@@ -1,6 +1,7 @@
 package util;
 
 import domain.EduClass;
+import domain.EduClassTypeEnum;
 import domain.Student;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -34,9 +35,20 @@ public class ClassConflict {
 
         for (CSVRecord csvRecord : records) {
             String className = csvRecord.get("className");
-            int type = Integer.parseInt(csvRecord.get("type"));
+            String typeName = csvRecord.get("type");
+            EduClassTypeEnum type;
+            switch (typeName) {
+                case "行政班":
+                    type = EduClassTypeEnum.ADMINISTRATIVE;
+                    break;
+                case "会考班":
+                    type = EduClassTypeEnum.ACADEMIC;
+                    break;
+                default:
+                    type = EduClassTypeEnum.COLLEGE;
+                    break;
+            }
             String subjectName = csvRecord.get("subjectName");
-
             EduClass eduClass = new EduClass();
             eduClass.setName(className);
             eduClass.setType(type);
@@ -53,9 +65,8 @@ public class ClassConflict {
                 .collect(Collectors.toList());
         eduClassList.sort(Comparator.comparing(EduClass::getType));
 
-
-        List<EduClass> classes = eduClassList.stream().filter(e -> e.getType() == 0).collect(Collectors.toList());
-        List<EduClass> classes2 = eduClassList.stream().filter(e -> e.getType() != 0).collect(Collectors.toList());
+        List<EduClass> classes = eduClassList.stream().filter(e -> e.getType() == EduClassTypeEnum.ADMINISTRATIVE).collect(Collectors.toList());
+        List<EduClass> classes2 = eduClassList.stream().filter(e -> e.getType() !=  EduClassTypeEnum.ADMINISTRATIVE).collect(Collectors.toList());
         try (
                 BufferedWriter writer = Files.newBufferedWriter(Paths.get("教学班对应的行政班.csv"), Charset.forName("gbk"));
                 CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("className", "className2"))

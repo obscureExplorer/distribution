@@ -1,21 +1,33 @@
 package util;
 
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
 import domain.Day;
 import domain.EduClass;
+import domain.EduClassTypeEnum;
 import domain.LectureOfEduClass;
 import domain.Period;
+import domain.ResourceTypeEnum;
 import domain.Room;
+import domain.RuleTypeEnum;
 import domain.Student;
 import domain.Subject;
+import domain.SubjectTypeEnum;
 import domain.Teacher;
+import domain.TeacherAssignment;
 import domain.TimeTablingProblem;
 import domain.Timeslot;
+import domain.PeriodPenalty;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -62,13 +74,12 @@ public class Dataset {
                 periodList.add(p);
             }
         }
-        List<Room> rooms = IntStream.range(0, roomNum).mapToObj(i -> {
+        List<Room> rooms = IntStream.range(0, roomNum+1).mapToObj(i -> {
             Room a = new Room();
             a.setId((long) i);
-            a.setName("room" + (i + 1));
+            a.setName("room" + i);
             return a;
         }).collect(Collectors.toList());
-
 
         problem.setDayList(dayList);
         problem.setTimeslotList(timeslots);
@@ -79,42 +90,65 @@ public class Dataset {
         in = new InputStreamReader(new FileInputStream(parentFolder + "/教学资源.csv"), "gbk");
         records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
 
-        //最终效果：
-        //必修 -- (语文,必修) -- [张，黄，陈]
-        //     -- (体育,必修) -- [蒋]
-        //选考 --(物理，学考) -- [王，李]
-        //     --(化学，学考) -- [季]
-        //会考 --(政治，会考) -- [魏]
-        //     --(生物，会考) -- [林]
-        Map<Integer, Map<Subject, List<Teacher>>> subjectMap = new LinkedHashMap<>();
-        Map<String,Teacher> teacherMap = new LinkedHashMap<>();
-
+        // 设置每个科目对应的老师
+        // 最终的结果：
+        //(语文,必修) -- [张，黄，陈]
+        //(物理，学考) -- [王，李]
+        //(化学，学考) -- [季]
+        //(政治，会考) -- [魏]
+        //(生物，会考) -- [林]
+        Multimap<Subject, Teacher> subjectMultimap = LinkedHashMultimap.create();
+        Map<String, Teacher> teacherMap = new LinkedHashMap<>();
         id = 0;
+        List<TeacherAssignment> teacherAssignments = new ArrayList<>();
         for (CSVRecord csvRecord : records) {
             String subjectName = csvRecord.get("subjectName");
             String teacherName = csvRecord.get("teacherName");
             int maxClassNum = Integer.parseInt(csvRecord.get("classNo"));
-            int type = Integer.parseInt(csvRecord.get("type"));
+            String typeName = csvRecord.get("type");
+            SubjectTypeEnum type;
+            switch (typeName) {
+                case "必修":
+                    type = SubjectTypeEnum.OBLIGATORY;
+                    break;
+                case "会考":
+                    type = SubjectTypeEnum.ACADEMIC;
+                    break;
+                default:
+                    type = SubjectTypeEnum.COLLEDGE;
+                    break;
+            }
             int lectureSize = Integer.parseInt(csvRecord.get("lectureSize"));
-
-            Subject subject = new Subject(subjectName, type, lectureSize);
-            subject.setSubjectMap(subjectMap);
-
+            boolean noRoom;
+            if ("是".equals(csvRecord.get("noRoom"))) {
+                noRoom = true;
+            } else {
+                noRoom = false;
+            }
+            Subject currentSubject = new Subject(subjectName, type, lectureSize, noRoom);
             Teacher currentTeacher;
-            if(!teacherMap.containsKey(teacherName)){
-                currentTeacher = new Teacher(teacherName,maxClassNum);
+            if (!teacherMap.containsKey(teacherName)) {
+                currentTeacher = new Teacher(teacherName);
                 currentTeacher.setId(id++);
-                teacherMap.put(teacherName,currentTeacher);
-            }else{
+                teacherMap.put(teacherName, currentTeacher);
+            } else {
                 currentTeacher = teacherMap.get(teacherName);
             }
-
-            subjectMap.putIfAbsent(type, new LinkedHashMap<>());
-            subjectMap.get(type).putIfAbsent(subject, new ArrayList<>());
-            subjectMap.get(type).get(subject).add(currentTeacher);
+            subjectMultimap.put(currentSubject, currentTeacher);
+            TeacherAssignment teacherAssignment = new TeacherAssignment();
+            teacherAssignment.setSubject(currentSubject);
+            teacherAssignment.setTeacher(currentTeacher);
+            teacherAssignment.setMaxClassNo(maxClassNum);
+            teacherAssignments.add(teacherAssignment);
         }
-        problem.setSubjectMap(subjectMap);
+        Map<Subject, Collection<Teacher>> subjectTeacherMap = subjectMultimap.asMap();
+        problem.setSubjectTeacherMap(subjectTeacherMap);
+        problem.setTeacherAssignmentList(teacherAssignments);
 
+        //设置所有的科目
+        List<Subject> subjectList = subjectTeacherMap.keySet().stream().collect(Collectors.toList());
+        problem.setSubjectList(subjectList);
+        //设置所有的老师
         List<Teacher> teacherList = teacherMap.keySet().stream().map(k -> teacherMap.get(k)).collect(Collectors.toList());
         problem.setTeacherList(teacherList);
 
@@ -124,15 +158,24 @@ public class Dataset {
         records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
         Map<EduClass, List<Student>> classStudentMap = new LinkedHashMap<>();
         for (CSVRecord csvRecord : records) {
+            String typeName = csvRecord.get("type");
+            EduClassTypeEnum type;
+            switch (typeName) {
+                case "行政班":
+                    type = EduClassTypeEnum.ADMINISTRATIVE;
+                    break;
+                case "会考班":
+                    type = EduClassTypeEnum.ACADEMIC;
+                    break;
+                default:
+                    type = EduClassTypeEnum.COLLEGE;
+                    break;
+            }
             String className = csvRecord.get("className");
-            int type = Integer.parseInt(csvRecord.get("type"));
-            String subjectName = csvRecord.get("subjectName");
-
             EduClass eduClass = new EduClass();
             eduClass.setId(id++);
             eduClass.setName(className);
             eduClass.setType(type);
-            eduClass.setSubjectName(subjectName);
             String studentName = csvRecord.get("studentName");
             Student s = new Student();
             s.setName(studentName);
@@ -145,60 +188,115 @@ public class Dataset {
                 .collect(Collectors.toList());
         problem.setEduClassList(eduClassList);
 
-        Map<Integer, Map<Subject, List<EduClass>>> classMap = new LinkedHashMap<>();
-        for (EduClass eduClass : eduClassList) {
-            int type = eduClass.getType();
-            String subjectName = eduClass.getSubjectName();
-
-            classMap.putIfAbsent(type,new LinkedHashMap<>());
-            Subject subject = new Subject(subjectName,type);
-            classMap.get(type).putIfAbsent(subject,new ArrayList<>());
-            classMap.get(type).get(subject).add(eduClass);
+        // 读入班级和科目的对应关系
+        in = new InputStreamReader(new FileInputStream(parentFolder + "/班级科目对应关系.csv"), "gbk");
+        records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
+        Multimap<String, Subject> eduClassSubjectMultimap = LinkedHashMultimap.create();
+        for (CSVRecord csvRecord : records) {
+            String typeName = csvRecord.get("type");
+            SubjectTypeEnum type;
+            switch (typeName) {
+                case "必修":
+                    type = SubjectTypeEnum.OBLIGATORY;
+                    break;
+                case "会考":
+                    type = SubjectTypeEnum.ACADEMIC;
+                    break;
+                default:
+                    type = SubjectTypeEnum.COLLEDGE;
+                    break;
+            }
+            boolean noRoom;
+            if ("是".equals(csvRecord.get("noRoom"))) {
+                noRoom = true;
+            } else {
+                noRoom = false;
+            }
+            int lectureSize = Integer.parseInt(csvRecord.get("lectureSize"));
+            Subject subject = new Subject(csvRecord.get("subject"), type, lectureSize, noRoom);
+            eduClassSubjectMultimap.put(csvRecord.get("eduClass"), subject);
         }
-        //构造lectures数据--假定行政班对应必修课，学考班对应学考科目，会考班对应会考科目
+
+        //构造lectures数据
         List<LectureOfEduClass> lectureOfEduClasses = new ArrayList<>();
-
-
         Iterator<Room> roomIterator = rooms.iterator();
         id = 0;
+
+        //0号教室是特殊的教室，专给体育这种不需要教室的课程用的
+        Room specialRoom = roomIterator.next();
         for (EduClass eduClass : eduClassList) {
-            int type = eduClass.getType();
-            Map<Subject, List<Teacher>> subjects = subjectMap.get(type);
-            if(type == 0){
-                //取一个教室给这个班级
-                Room room = roomIterator.next();
-                for (Subject subject : subjects.keySet()) {
-                    int lectureSize = subject.getLectureSize();
-                    for (int i = 0; i < lectureSize; i++) {
-                        LectureOfEduClass lecture = new LectureOfEduClass();
-                        lecture.setId(id++);
-                        lecture.setEduClass(eduClass);
-                        lecture.setLectureIndex(i);
-                        lecture.setSubject(subject);
-                        //行政班固定教室
+            Collection<Subject> subjectsOfEduClass = eduClassSubjectMultimap.get(eduClass.getName());
+            //行政班固定教室
+            Room room;
+            boolean roomUnmovable;
+            if (eduClass.getType() == EduClassTypeEnum.ADMINISTRATIVE) {
+                room = roomIterator.next();
+                roomUnmovable = true;
+            } else {
+                room = null;
+                roomUnmovable = false;
+            }
+            for (Subject subject : subjectsOfEduClass) {
+                for (int i = 0; i < subject.getLectureSize(); i++) {
+                    LectureOfEduClass lecture = new LectureOfEduClass();
+                    lecture.setId(id++);
+                    lecture.setEduClass(eduClass);
+                    lecture.setLectureIndex(i);
+                    lecture.setSubject(subject);
+                    if(subject.isNoRoom()){
+                        lecture.setRoom(specialRoom);
+                        roomUnmovable = true;
+                    }else {
                         lecture.setRoom(room);
-                        lecture.setRoomUnmovable(true);
-                        lectureOfEduClasses.add(lecture);
                     }
-                }
-            }else{
-                for (Subject subject : subjects.keySet()) {
-                    if(subject.getName().equals(eduClass.getSubjectName())){
-                        int size = subject.getLectureSize();
-                        for (int i = 0; i < size; i++) {
-                            LectureOfEduClass lecture = new LectureOfEduClass();
-                            lecture.setId(id++);
-                            lecture.setEduClass(eduClass);
-                            lecture.setLectureIndex(i);
-                            lecture.setSubject(subject);
-                            lectureOfEduClasses.add(lecture);
-                        }
-                        break;
-                    }
+                    lecture.setRoomUnmovable(roomUnmovable);
+                    lectureOfEduClasses.add(lecture);
                 }
             }
         }
         problem.setLectureList(lectureOfEduClasses);
+
+        //读取不可用的时间信息
+        if (!Files.exists(Paths.get(parentFolder + "/可用与不可用时间.csv"))) {
+            return;
+        }
+        //设置课程数据
+        in = new InputStreamReader(new FileInputStream(parentFolder + "/可用与不可用时间.csv"), "gbk");
+        records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
+        List<PeriodPenalty> periodPenaltyList = new ArrayList<>();
+        id = 0;
+        for (CSVRecord csvRecord : records) {
+            PeriodPenalty periodPenalty = new PeriodPenalty();
+            periodPenalty.setId(++id);
+            periodPenalty.setName(csvRecord.get("name"));
+            periodPenalty.setSubjectName(csvRecord.get("subjectName"));
+            Day day = new Day();
+            day.setDayIndex(Integer.parseInt(csvRecord.get("day")));
+            Timeslot timeslot = new Timeslot();
+            timeslot.setTimeslotIndex(Integer.parseInt(csvRecord.get("timeslot")));
+            Period period = new Period();
+            period.setDay(day);
+            period.setTimeslot(timeslot);
+            periodPenalty.setPeriod(period);
+
+            if ("班级".equals(csvRecord.get("resourceType"))) {
+                periodPenalty.setResourceType(ResourceTypeEnum.EDUCLASS);
+            } else if ("老师".equals(csvRecord.get("resourceType"))) {
+                periodPenalty.setResourceType(ResourceTypeEnum.TEACHER);
+            } else {
+                throw new UnsupportedOperationException();
+            }
+
+            if ("不可用".equals(csvRecord.get("ruleType"))) {
+                periodPenalty.setRuleType(RuleTypeEnum.UNAVAILABILITY);
+            } else if ("可用".equals(csvRecord.get("ruleType"))) {
+                periodPenalty.setRuleType(RuleTypeEnum.AVAILABILITY);
+            } else {
+                throw new UnsupportedOperationException();
+            }
+            periodPenaltyList.add(periodPenalty);
+        }
+        problem.setPeriodPenaltyList(periodPenaltyList);
 
     }
 }

@@ -38,7 +38,7 @@ public class Day implements Serializable {
 
     @Override
     public String toString() {
-        return Integer.toString(dayIndex);
+        return "day" + dayIndex;
     }
 
     @Override

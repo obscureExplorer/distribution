@@ -1,5 +1,6 @@
 package domain;
 
+import com.google.common.base.Objects;
 import org.optaplanner.core.api.domain.lookup.PlanningId;
 
 import java.io.Serializable;
@@ -34,5 +35,18 @@ public class Timeslot implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Timeslot timeslot = (Timeslot) o;
+        return timeslotIndex == timeslot.timeslotIndex;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(timeslotIndex);
     }
 }

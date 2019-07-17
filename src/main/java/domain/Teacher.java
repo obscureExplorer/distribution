@@ -16,14 +16,11 @@ public class Teacher  implements Comparable<Teacher>, Serializable {
 
     private String name;
 
-    private int maxClassNum;
-
     public Teacher() {
     }
 
-    public Teacher(String name, int maxClassNum) {
+    public Teacher(String name) {
         this.name = name;
-        this.maxClassNum = maxClassNum;
     }
 
     public String getName() {
@@ -55,14 +52,6 @@ public class Teacher  implements Comparable<Teacher>, Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(name);
-    }
-
-    public int getMaxClassNum() {
-        return maxClassNum;
-    }
-
-    public void setMaxClassNum(int maxClassNum) {
-        this.maxClassNum = maxClassNum;
     }
 
     public Long getId() {

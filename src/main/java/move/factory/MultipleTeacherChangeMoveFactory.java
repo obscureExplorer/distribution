@@ -10,6 +10,7 @@ import org.optaplanner.core.impl.heuristic.move.Move;
 import org.optaplanner.core.impl.heuristic.selector.move.factory.MoveListFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,17 +25,16 @@ public class MultipleTeacherChangeMoveFactory implements MoveListFactory<TimeTab
     public List<? extends Move<TimeTablingProblem>> createMoveList(TimeTablingProblem timeTablingProblem) {
         List<MultipleTeacherChangeMove> moveList = new ArrayList<>();
         List<LectureOfEduClass> lectures = timeTablingProblem.getLectureList();
-        Map<Integer, Map<Subject, List<Teacher>>> subjectMap = timeTablingProblem.getSubjectMap();
-        Map<Subject, Map<EduClass, List<LectureOfEduClass>>> lectureMap = lectures.stream().collect(Collectors.groupingBy(LectureOfEduClass::getSubject, Collectors.groupingBy(LectureOfEduClass::getEduClass)));
+        Map<Subject, Collection<Teacher>> subjectTeacherMap = timeTablingProblem.getSubjectTeacherMap();
+        //过滤掉老师不能变动的
+        Map<Subject, Map<EduClass, List<LectureOfEduClass>>> lectureMap = lectures.stream().filter(l -> !l.isTeacherUnmovable()).collect(Collectors.groupingBy(LectureOfEduClass::getSubject, Collectors.groupingBy(LectureOfEduClass::getEduClass)));
 
-        for (Integer type : subjectMap.keySet()) {
-            for (Subject subject : subjectMap.get(type).keySet()) {
-                for (Teacher teacher : subjectMap.get(type).get(subject)) {
-                    for (EduClass eduClass : lectureMap.get(subject).keySet()) {
-                        List<LectureOfEduClass> lectureOfEduClasses = lectureMap.get(subject).get(eduClass);
-                        MultipleTeacherChangeMove move = new MultipleTeacherChangeMove(lectureOfEduClasses,teacher);
-                        moveList.add(move);
-                    }
+        for (Subject subject : subjectTeacherMap.keySet()) {
+            for (Teacher teacher : subjectTeacherMap.get(subject)) {
+                for (EduClass eduClass : lectureMap.get(subject).keySet()) {
+                    List<LectureOfEduClass> lectureOfEduClasses = lectureMap.get(subject).get(eduClass);
+                    MultipleTeacherChangeMove move = new MultipleTeacherChangeMove(lectureOfEduClasses, teacher);
+                    moveList.add(move);
                 }
             }
         }

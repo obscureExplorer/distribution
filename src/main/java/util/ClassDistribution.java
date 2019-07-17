@@ -1,6 +1,7 @@
 package util;
 
 import domain.EduClass;
+import domain.EduClassTypeEnum;
 import domain.Student;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -56,9 +57,9 @@ public class ClassDistribution {
             classSizes.forEach(size ->{
                 EduClass eduClass = new EduClass();
                 if(key.contains("行政"))
-                    eduClass.setType(0);
+                    eduClass.setType(EduClassTypeEnum.ADMINISTRATIVE);
                 else
-                    eduClass.setType(1);
+                    eduClass.setType(EduClassTypeEnum.COLLEGE);
                 eduClass.setName(key);
                 List<Student> classStudents = IntStream.range(start, size).mapToObj(i -> {
                     Student s = new Student();

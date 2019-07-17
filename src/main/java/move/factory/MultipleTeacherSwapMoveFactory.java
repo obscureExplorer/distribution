@@ -27,7 +27,8 @@ public class MultipleTeacherSwapMoveFactory implements MoveListFactory<TimeTabli
     public List<? extends Move<TimeTablingProblem>> createMoveList(TimeTablingProblem timeTablingProblem) {
         List<MultipleTeacherSwapMove> moveList = new ArrayList<>();
         List<LectureOfEduClass> lectures = timeTablingProblem.getLectureList();
-        Map<Subject, Map<EduClass, List<LectureOfEduClass>>> lectureMap = lectures.stream().collect(Collectors.groupingBy(LectureOfEduClass::getSubject, Collectors.groupingBy(LectureOfEduClass::getEduClass)));
+        //过滤掉老师不能变动的
+        Map<Subject, Map<EduClass, List<LectureOfEduClass>>> lectureMap = lectures.stream().filter(l -> !l.isTeacherUnmovable()).collect(Collectors.groupingBy(LectureOfEduClass::getSubject, Collectors.groupingBy(LectureOfEduClass::getEduClass)));
 
         for (Subject subject : lectureMap.keySet()) {
             Set<EduClass> eduClasses = lectureMap.get(subject).keySet();

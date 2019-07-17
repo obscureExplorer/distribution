@@ -12,26 +12,20 @@ import java.util.Objects;
 public class Subject implements Comparable<Subject>{
     //科目名
     private String name;
-    //0-必修，1-选考，2-学考
-    private int type;
+    //必修、高考、选考
+    private SubjectTypeEnum type;
     //科目的课时数
     private int lectureSize;
 
-    private Map<Integer, Map<Subject, List<Teacher>>> subjectMap;
+    private boolean noRoom;
 
-    public Subject() {
+    private Map<SubjectTypeEnum, Map<Subject, List<Teacher>>> subjectMap;
 
-    }
-
-    public Subject(String name, int type) {
-        this.name = name;
-        this.type = type;
-    }
-
-    public Subject(String name, int type,int lectureSize) {
+    public Subject(String name, SubjectTypeEnum type, int lectureSize, boolean noRoom) {
         this.name = name;
         this.type = type;
         this.lectureSize = lectureSize;
+        this.noRoom = noRoom;
     }
 
     public String getName() {
@@ -42,11 +36,11 @@ public class Subject implements Comparable<Subject>{
         this.name = name;
     }
 
-    public int getType() {
+    public SubjectTypeEnum getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(SubjectTypeEnum type) {
         this.type = type;
     }
 
@@ -74,32 +68,18 @@ public class Subject implements Comparable<Subject>{
 
     @Override
     public String toString() {
-        String typeName;
-        switch (type){
-            case 0:
-                typeName = "必修";
-                break;
-            case 1:
-                typeName = "学考";
-                break;
-            case 2:
-                typeName = "选考";
-                break;
-            default:
-                typeName = "未知";
-        }
-        return "<" +  name +  "," + typeName + ">";
+        return "<" +  name +  "," + type + ">";
     }
 
     public List<Teacher> getPossibleTeacher(){
         return subjectMap.get(type).get(this);
     }
 
-    public Map<Integer, Map<Subject, List<Teacher>>> getSubjectMap() {
+    public Map<SubjectTypeEnum, Map<Subject, List<Teacher>>> getSubjectMap() {
         return subjectMap;
     }
 
-    public void setSubjectMap(Map<Integer, Map<Subject, List<Teacher>>> subjectMap) {
+    public void setSubjectMap(Map<SubjectTypeEnum, Map<Subject, List<Teacher>>> subjectMap) {
         this.subjectMap = subjectMap;
     }
 
@@ -108,5 +88,13 @@ public class Subject implements Comparable<Subject>{
         return new CompareToBuilder()
                 .append(this.name,o.name)
                 .append(this.type,this.type).toComparison();
+    }
+
+    public boolean isNoRoom() {
+        return noRoom;
+    }
+
+    public void setNoRoom(boolean noRoom) {
+        this.noRoom = noRoom;
     }
 }

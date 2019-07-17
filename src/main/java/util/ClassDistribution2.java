@@ -6,6 +6,7 @@ import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import domain.EduClass;
+import domain.EduClassTypeEnum;
 import domain.Student;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -115,15 +116,27 @@ public class ClassDistribution2 {
 
         ListMultimap<EduClass, Student> eduClassMultiMap = MultimapBuilder.treeKeys().arrayListValues().build();
         for (CSVRecord record : records) {
-            String type = record.get("type");
-            if (!type.equals("0"))
+            String typeName = record.get("type");
+            if (!typeName.equals("行政班"))
                 continue;
+            EduClassTypeEnum type;
+            switch (typeName) {
+                case "行政班":
+                    type = EduClassTypeEnum.ADMINISTRATIVE;
+                    break;
+                case "会考班":
+                    type = EduClassTypeEnum.ACADEMIC;
+                    break;
+                default:
+                    type = EduClassTypeEnum.COLLEGE;
+                    break;
+            }
             String studentName = record.get("studentName");
             Student student = new Student();
             student.setName(studentName);
             EduClass eduClass = new EduClass();
             eduClass.setName(record.get("className"));
-            eduClass.setType(Integer.parseInt(type));
+            eduClass.setType(type);
             eduClassMultiMap.put(eduClass, student);
         }
 
@@ -156,11 +169,11 @@ public class ClassDistribution2 {
                 subjectIndex.put(k, subjectIndex.get(k) + 1);
                 String subjectName;
                 if (k.startsWith("会考")){
-                    currentEduClass.setType(2);
+                    currentEduClass.setType(EduClassTypeEnum.ACADEMIC);
                     subjectName = k.replace("会考","");
                 }
                 else{
-                    currentEduClass.setType(1);
+                    currentEduClass.setType(EduClassTypeEnum.COLLEGE);
                     subjectName = k;
                 }
                 currentEduClass.setSubjectName(subjectName);
@@ -189,8 +202,8 @@ public class ClassDistribution2 {
             e.printStackTrace();
         }
 
-        List<EduClass> classes = eduClassList.stream().filter(e -> e.getType() == 0).collect(Collectors.toList());
-        List<EduClass> classes2 = eduClassList.stream().filter(e -> e.getType() != 0).collect(Collectors.toList());
+        List<EduClass> classes = eduClassList.stream().filter(e -> e.getType() == EduClassTypeEnum.ADMINISTRATIVE).collect(Collectors.toList());
+        List<EduClass> classes2 = eduClassList.stream().filter(e -> e.getType() != EduClassTypeEnum.ADMINISTRATIVE).collect(Collectors.toList());
         try (
                 BufferedWriter writer = Files.newBufferedWriter(Paths.get("教学班对应的行政班.csv"), Charset.forName("gbk"));
                 CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("className", "className2"))

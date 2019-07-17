@@ -5,10 +5,11 @@ import org.optaplanner.core.api.domain.solution.PlanningScore;
 import org.optaplanner.core.api.domain.solution.PlanningSolution;
 import org.optaplanner.core.api.domain.solution.drools.ProblemFactCollectionProperty;
 import org.optaplanner.core.api.domain.valuerange.ValueRangeProvider;
-import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore;
+import org.optaplanner.core.api.score.buildin.hardmediumsoft.HardMediumSoftScore;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -40,15 +41,22 @@ public class TimeTablingProblem implements Serializable {
     @ProblemFactCollectionProperty
     private List<EduClass> eduClassList;
 
+    @ProblemFactCollectionProperty
+    private List<Subject> subjectList;
+
+    @ProblemFactCollectionProperty
+    private List<PeriodPenalty> periodPenaltyList;
+
     @PlanningEntityCollectionProperty
     private List<LectureOfEduClass> lectureList;
 
-    private List<Subject> subjectList;
+    @ProblemFactCollectionProperty
+    private List<TeacherAssignment> teacherAssignmentList;
 
-    private Map<Integer, Map<Subject, List<Teacher>>> subjectMap;
+    private Map<Subject, Collection<Teacher>> subjectTeacherMap;
 
     @PlanningScore
-    private HardSoftScore score;
+    private HardMediumSoftScore score;
 
     public List<Day> getDayList() {
         return dayList;
@@ -82,11 +90,11 @@ public class TimeTablingProblem implements Serializable {
         this.lectureList = lectureList;
     }
 
-    public HardSoftScore getScore() {
+    public HardMediumSoftScore getScore() {
         return score;
     }
 
-    public void setScore(HardSoftScore score) {
+    public void setScore(HardMediumSoftScore score) {
         this.score = score;
     }
 
@@ -136,12 +144,12 @@ public class TimeTablingProblem implements Serializable {
         this.teacherList = teacherList;
     }
 
-    public Map<Integer, Map<Subject, List<Teacher>>> getSubjectMap() {
-        return subjectMap;
+    public Map<Subject, Collection<Teacher>> getSubjectTeacherMap() {
+        return subjectTeacherMap;
     }
 
-    public void setSubjectMap(Map<Integer, Map<Subject, List<Teacher>>> subjectMap) {
-        this.subjectMap = subjectMap;
+    public void setSubjectTeacherMap(Map<Subject, Collection<Teacher>> subjectTeacherMap) {
+        this.subjectTeacherMap = subjectTeacherMap;
     }
 
     public List<Subject> getSubjectList() {
@@ -150,5 +158,21 @@ public class TimeTablingProblem implements Serializable {
 
     public void setSubjectList(List<Subject> subjectList) {
         this.subjectList = subjectList;
+    }
+
+    public List<PeriodPenalty> getPeriodPenaltyList() {
+        return periodPenaltyList;
+    }
+
+    public void setPeriodPenaltyList(List<PeriodPenalty> periodPenaltyList) {
+        this.periodPenaltyList = periodPenaltyList;
+    }
+
+    public List<TeacherAssignment> getTeacherAssignmentList() {
+        return teacherAssignmentList;
+    }
+
+    public void setTeacherAssignmentList(List<TeacherAssignment> teacherAssignmentList) {
+        this.teacherAssignmentList = teacherAssignmentList;
     }
 }
