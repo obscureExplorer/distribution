@@ -17,15 +17,12 @@ public class Subject implements Comparable<Subject>{
     //科目的课时数
     private int lectureSize;
 
-    private boolean noRoom;
-
     private Map<SubjectTypeEnum, Map<Subject, List<Teacher>>> subjectMap;
 
-    public Subject(String name, SubjectTypeEnum type, int lectureSize, boolean noRoom) {
+    public Subject(String name, SubjectTypeEnum type, int lectureSize) {
         this.name = name;
         this.type = type;
         this.lectureSize = lectureSize;
-        this.noRoom = noRoom;
     }
 
     public String getName() {
@@ -88,13 +85,5 @@ public class Subject implements Comparable<Subject>{
         return new CompareToBuilder()
                 .append(this.name,o.name)
                 .append(this.type,this.type).toComparison();
-    }
-
-    public boolean isNoRoom() {
-        return noRoom;
-    }
-
-    public void setNoRoom(boolean noRoom) {
-        this.noRoom = noRoom;
     }
 }

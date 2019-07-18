@@ -74,10 +74,10 @@ public class Dataset {
                 periodList.add(p);
             }
         }
-        List<Room> rooms = IntStream.range(0, roomNum+1).mapToObj(i -> {
+        List<Room> rooms = IntStream.range(0, roomNum).mapToObj(i -> {
             Room a = new Room();
             a.setId((long) i);
-            a.setName("room" + i);
+            a.setName("room" + (i + 1));
             return a;
         }).collect(Collectors.toList());
 
@@ -119,13 +119,7 @@ public class Dataset {
                     break;
             }
             int lectureSize = Integer.parseInt(csvRecord.get("lectureSize"));
-            boolean noRoom;
-            if ("是".equals(csvRecord.get("noRoom"))) {
-                noRoom = true;
-            } else {
-                noRoom = false;
-            }
-            Subject currentSubject = new Subject(subjectName, type, lectureSize, noRoom);
+            Subject currentSubject = new Subject(subjectName, type, lectureSize);
             Teacher currentTeacher;
             if (!teacherMap.containsKey(teacherName)) {
                 currentTeacher = new Teacher(teacherName);
@@ -206,14 +200,8 @@ public class Dataset {
                     type = SubjectTypeEnum.COLLEDGE;
                     break;
             }
-            boolean noRoom;
-            if ("是".equals(csvRecord.get("noRoom"))) {
-                noRoom = true;
-            } else {
-                noRoom = false;
-            }
             int lectureSize = Integer.parseInt(csvRecord.get("lectureSize"));
-            Subject subject = new Subject(csvRecord.get("subject"), type, lectureSize, noRoom);
+            Subject subject = new Subject(csvRecord.get("subject"), type, lectureSize);
             eduClassSubjectMultimap.put(csvRecord.get("eduClass"), subject);
         }
 
@@ -221,9 +209,6 @@ public class Dataset {
         List<LectureOfEduClass> lectureOfEduClasses = new ArrayList<>();
         Iterator<Room> roomIterator = rooms.iterator();
         id = 0;
-
-        //0号教室是特殊的教室，专给体育这种不需要教室的课程用的
-        Room specialRoom = roomIterator.next();
         for (EduClass eduClass : eduClassList) {
             Collection<Subject> subjectsOfEduClass = eduClassSubjectMultimap.get(eduClass.getName());
             //行政班固定教室
@@ -243,12 +228,7 @@ public class Dataset {
                     lecture.setEduClass(eduClass);
                     lecture.setLectureIndex(i);
                     lecture.setSubject(subject);
-                    if(subject.isNoRoom()){
-                        lecture.setRoom(specialRoom);
-                        roomUnmovable = true;
-                    }else {
-                        lecture.setRoom(room);
-                    }
+                    lecture.setRoom(room);
                     lecture.setRoomUnmovable(roomUnmovable);
                     lectureOfEduClasses.add(lecture);
                 }

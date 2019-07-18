@@ -25,8 +25,7 @@ public class MultipleRoomChangeMoveFactory implements MoveListFactory<TimeTablin
         Map<EduClass, List<LectureOfEduClass>> eduClasses = lectures.stream()
                 .filter(lectureOfEduClass -> !lectureOfEduClass.isRoomUnmovable())
                 .collect(Collectors.groupingBy(LectureOfEduClass::getEduClass));
-        List<Room> allRoom = timeTablingProblem.getRoomList();
-        List<Room> roomList = allRoom.subList(1,allRoom.size());
+        List<Room> roomList = timeTablingProblem.getRoomList();
         for (EduClass eduClass : eduClasses.keySet()) {
             for (Room room : roomList) {
                 MultipleRoomChangeMove move = new MultipleRoomChangeMove(eduClasses.get(eduClass),room);
