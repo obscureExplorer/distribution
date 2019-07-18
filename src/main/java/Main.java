@@ -14,6 +14,8 @@ import org.optaplanner.core.api.solver.Solver;
 import org.optaplanner.core.api.solver.SolverFactory;
 import org.optaplanner.core.impl.score.director.ScoreDirector;
 import org.optaplanner.core.impl.score.director.ScoreDirectorFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.Dataset;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -31,17 +33,19 @@ import java.util.Set;
  */
 public class Main {
     public static void main(String[] args) throws IOException {
+        Logger logger = LoggerFactory.getLogger(Main.class);
         // 构建Solver
         SolverFactory<TimeTablingProblem> solverFactory = SolverFactory.createFromXmlResource("config/solverConfig.xml");
         Solver<TimeTablingProblem> solver = solverFactory.buildSolver();
         // 初始化数据
         TimeTablingProblem problem = new TimeTablingProblem();
-        Dataset.createDataset(problem, "dataset/5");
+        Dataset.createDataset(problem, "dataset/7");
         //添加listener，用来监听分值发生变化的事件
         solver.addEventListener(event -> {
             // 忽略不可行的解
             if (event.getNewBestSolution().getScore().isFeasible()) {
-                System.out.println(event.getNewBestScore().toString());
+                logger.info(event.getNewBestScore().toString());
+                //System.out.println(event.getNewBestScore().toString());
             }
         });
 
@@ -81,11 +85,13 @@ public class Main {
                 Score totalScore =  constraintMatchTotal.getScore();
                 // 哪些对象打破了这条规则
                 Set<ConstraintMatch> constraintMatchSet = constraintMatchTotal.getConstraintMatchSet();
-                System.out.println(totalScore.toShortString() + " constraint(" + constraintName + ") has " + constraintMatchSet.size() + " matches");
+                //System.out.println(totalScore.toShortString() + " constraint(" + constraintName + ") has " + constraintMatchSet.size() + " matches");
+                logger.info(totalScore.toShortString() + " constraint(" + constraintName + ") has " + constraintMatchSet.size() + " matches");
                 for (ConstraintMatch constraintMatch : constraintMatchSet) {
                     List<Object> justificationList = constraintMatch.getJustificationList();
                     Score score = constraintMatch.getScore();
-                    System.out.println(score.toShortString() + justificationList.toString());
+                    //System.out.println(score.toShortString() + justificationList.toString());
+                    logger.info(score.toShortString() + justificationList.toString());
                 }
             }
         }

@@ -5,6 +5,8 @@ import com.google.common.collect.Multimap;
 import domain.Day;
 import domain.EduClass;
 import domain.EduClassTypeEnum;
+import domain.Group;
+import domain.GroupEduClass;
 import domain.LectureOfEduClass;
 import domain.Period;
 import domain.ResourceTypeEnum;
@@ -34,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * Created by xcy on 2019/5/30.
@@ -161,8 +164,11 @@ public class Dataset {
                 case "会考班":
                     type = EduClassTypeEnum.ACADEMIC;
                     break;
-                default:
+                case "高考班":
                     type = EduClassTypeEnum.COLLEGE;
+                    break;
+                default:
+                    type = EduClassTypeEnum.GROUP;
                     break;
             }
             String className = csvRecord.get("className");
@@ -237,46 +243,66 @@ public class Dataset {
         problem.setLectureList(lectureOfEduClasses);
 
         //读取不可用的时间信息
-        if (!Files.exists(Paths.get(parentFolder + "/可用与不可用时间.csv"))) {
-            return;
-        }
-        //设置课程数据
-        in = new InputStreamReader(new FileInputStream(parentFolder + "/可用与不可用时间.csv"), "gbk");
-        records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
-        List<PeriodPenalty> periodPenaltyList = new ArrayList<>();
-        id = 0;
-        for (CSVRecord csvRecord : records) {
-            PeriodPenalty periodPenalty = new PeriodPenalty();
-            periodPenalty.setId(++id);
-            periodPenalty.setName(csvRecord.get("name"));
-            periodPenalty.setSubjectName(csvRecord.get("subjectName"));
-            Day day = new Day();
-            day.setDayIndex(Integer.parseInt(csvRecord.get("day")));
-            Timeslot timeslot = new Timeslot();
-            timeslot.setTimeslotIndex(Integer.parseInt(csvRecord.get("timeslot")));
-            Period period = new Period();
-            period.setDay(day);
-            period.setTimeslot(timeslot);
-            periodPenalty.setPeriod(period);
+        if (Files.exists(Paths.get(parentFolder + "/可用与不可用时间.csv"))) {
+            //设置可用与不可用时间
+            in = new InputStreamReader(new FileInputStream(parentFolder + "/可用与不可用时间.csv"), "gbk");
+            records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
+            List<PeriodPenalty> periodPenaltyList = new ArrayList<>();
+            id = 0;
+            for (CSVRecord csvRecord : records) {
+                PeriodPenalty periodPenalty = new PeriodPenalty();
+                periodPenalty.setId(++id);
+                periodPenalty.setName(csvRecord.get("name"));
+                periodPenalty.setSubjectName(csvRecord.get("subjectName"));
+                Day day = new Day();
+                day.setDayIndex(Integer.parseInt(csvRecord.get("day")));
+                Timeslot timeslot = new Timeslot();
+                timeslot.setTimeslotIndex(Integer.parseInt(csvRecord.get("timeslot")));
+                Period period = new Period();
+                period.setDay(day);
+                period.setTimeslot(timeslot);
+                periodPenalty.setPeriod(period);
 
-            if ("班级".equals(csvRecord.get("resourceType"))) {
-                periodPenalty.setResourceType(ResourceTypeEnum.EDUCLASS);
-            } else if ("老师".equals(csvRecord.get("resourceType"))) {
-                periodPenalty.setResourceType(ResourceTypeEnum.TEACHER);
-            } else {
-                throw new UnsupportedOperationException();
+                if ("班级".equals(csvRecord.get("resourceType"))) {
+                    periodPenalty.setResourceType(ResourceTypeEnum.EDUCLASS);
+                } else if ("老师".equals(csvRecord.get("resourceType"))) {
+                    periodPenalty.setResourceType(ResourceTypeEnum.TEACHER);
+                } else {
+                    throw new UnsupportedOperationException();
+                }
+
+                if ("不可用".equals(csvRecord.get("ruleType"))) {
+                    periodPenalty.setRuleType(RuleTypeEnum.UNAVAILABILITY);
+                } else if ("可用".equals(csvRecord.get("ruleType"))) {
+                    periodPenalty.setRuleType(RuleTypeEnum.AVAILABILITY);
+                } else {
+                    throw new UnsupportedOperationException();
+                }
+                periodPenaltyList.add(periodPenalty);
             }
-
-            if ("不可用".equals(csvRecord.get("ruleType"))) {
-                periodPenalty.setRuleType(RuleTypeEnum.UNAVAILABILITY);
-            } else if ("可用".equals(csvRecord.get("ruleType"))) {
-                periodPenalty.setRuleType(RuleTypeEnum.AVAILABILITY);
-            } else {
-                throw new UnsupportedOperationException();
-            }
-            periodPenaltyList.add(periodPenalty);
+            problem.setPeriodPenaltyList(periodPenaltyList);
         }
-        problem.setPeriodPenaltyList(periodPenaltyList);
 
+//        if (Files.exists(Paths.get(parentFolder + "/合班.csv"))) {
+//            //设置可用与不可用时间
+//            in = new InputStreamReader(new FileInputStream(parentFolder + "/合班.csv"), "gbk");
+//            records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
+//            Multimap<Group, GroupEduClass> multimap = LinkedHashMultimap.create();
+//            for (CSVRecord csvRecord : records) {
+//                int subjectPeriodSize = Integer.parseInt(csvRecord.get("subjectPeriodSize"));
+//                String groupName = csvRecord.get("groupName");
+//                Group group = new Group(groupName, subjectPeriodSize);
+//                GroupEduClass groupEduClass = new GroupEduClass(groupName, csvRecord.get("eduClassName"));
+//                multimap.put(group, groupEduClass);
+//            }
+//            Map<Group, Collection<GroupEduClass>> map = multimap.asMap();
+//            List<Group> groupList = new ArrayList<>(map.keySet());
+//            List<GroupEduClass> groupEduClassList = map.keySet().stream().flatMap(k -> map.get(k).stream()).collect(Collectors.toList());
+//            problem.setGroupList(groupList);
+//            problem.setGroupEduClassList(groupEduClassList);
+//        }else{
+//            problem.setGroupList(new ArrayList<>());
+//            problem.setGroupEduClassList(new ArrayList<>());
+//        }
     }
 }

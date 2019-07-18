@@ -53,6 +53,12 @@ public class TimeTablingProblem implements Serializable {
     @ProblemFactCollectionProperty
     private List<TeacherAssignment> teacherAssignmentList;
 
+/*    @ProblemFactCollectionProperty
+    private List<Group> groupList;
+
+    @ProblemFactCollectionProperty
+    private List<GroupEduClass> groupEduClassList;*/
+
     private Map<Subject, Collection<Teacher>> subjectTeacherMap;
 
     @PlanningScore
@@ -175,4 +181,20 @@ public class TimeTablingProblem implements Serializable {
     public void setTeacherAssignmentList(List<TeacherAssignment> teacherAssignmentList) {
         this.teacherAssignmentList = teacherAssignmentList;
     }
+
+/*    public List<Group> getGroupList() {
+        return groupList;
+    }
+
+    public void setGroupList(List<Group> groupList) {
+        this.groupList = groupList;
+    }
+
+    public List<GroupEduClass> getGroupEduClassList() {
+        return groupEduClassList;
+    }
+
+    public void setGroupEduClassList(List<GroupEduClass> groupEduClassList) {
+        this.groupEduClassList = groupEduClassList;
+    }*/
 }

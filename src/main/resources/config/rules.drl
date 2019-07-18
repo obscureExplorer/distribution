@@ -16,6 +16,10 @@ import domain.RuleTypeEnum;
 import domain.AdjacentPenalty;
 import domain.AdjacentLecture;
 import domain.TeacherAssignment;
+import domain.GroupResourceTypeEnum;
+import domain.GroupEduClass;
+import domain.GroupResourceUsage;
+import domain.Group;
 global org.optaplanner.core.api.score.buildin.hardmediumsoft.HardMediumSoftScoreHolder scoreHolder;
 
 //global HardSoftScoreHolder scoreHolder;
@@ -65,6 +69,91 @@ rule "roomOccupancy"
         scoreHolder.addHardConstraintMatch(kcontext, -1);
 end
 
+
+//中等约束条件
+//合班规则
+/*
+rule "insertPeriod"
+    salience 1
+    when
+        Group($groupName : name);
+        GroupEduClass(groupName == $groupName, $eduClassName : eduClassName)
+        LectureOfEduClass(eduClass == $eduClassName, $period : period, $room : room, $teacher: teacher);
+    then
+        insertLogical(new GroupResourceUsage($groupName,GroupResourceTypeEnum.PERIOD,$period));
+*/
+/*        insertLogical(new GroupResourceUsage($groupName,GroupResourceTypeEnum.ROOM,$room));
+        insertLogical(new GroupResourceUsage($groupName,GroupResourceTypeEnum.TEACHER,$teacher));*//*
+
+end
+
+rule "insertRoom"
+    salience 1
+    when
+        Group($groupName : name);
+        GroupEduClass(groupName == $groupName, $eduClassName : eduClassName)
+        LectureOfEduClass(eduClass == $eduClassName, $period : period, $room : room, $teacher: teacher);
+    then
+        insertLogical(new GroupResourceUsage($groupName,GroupResourceTypeEnum.PERIOD,$period));
+*/
+/*        insertLogical(new GroupResourceUsage($groupName,GroupResourceTypeEnum.ROOM,$room));
+        insertLogical(new GroupResourceUsage($groupName,GroupResourceTypeEnum.TEACHER,$teacher));*//*
+
+end
+
+rule "insertTeacher"
+    salience 1
+    when
+        Group($groupName : name);
+        GroupEduClass(groupName == $groupName, $eduClassName : eduClassName)
+        LectureOfEduClass(eduClass == $eduClassName, $period : period, $room : room, $teacher: teacher);
+    then
+        insertLogical(new GroupResourceUsage($groupName,GroupResourceTypeEnum.PERIOD,$period));
+*/
+/*        insertLogical(new GroupResourceUsage($groupName,GroupResourceTypeEnum.ROOM,$room));
+        insertLogical(new GroupResourceUsage($groupName,GroupResourceTypeEnum.TEACHER,$teacher));*//*
+
+end
+
+rule "groupEduClassPeriod"
+    when
+         Group($groupName : name, $subjectPeriodSize : subjectPeriodSize)
+         accumulate(
+            GroupResourceUsage(groupName == $groupName,groupResourceType == GroupResourceTypeEnum.PERIOD,$period : resource );
+            $periodCount : count($period);
+            $periodCount > $subjectPeriodSize
+         )
+    then
+         scoreHolder.addMediumConstraintMatch(kcontext, (int) ($subjectPeriodSize - $periodCount));
+end
+
+
+rule "groupEduClassRoom"
+    when
+         Group($groupName : name, $subjectPeriodSize : subjectPeriodSize)
+         accumulate(
+            GroupResourceUsage(groupName == $groupName, groupResourceType ==  GroupResourceTypeEnum.ROOM ,$room : resource );
+            $roomCount : count($room);
+            $roomCount > $subjectPeriodSize
+         )
+    then
+         scoreHolder.addMediumConstraintMatch(kcontext, (int)(1 - $roomCount));
+end
+
+rule "groupEduClassTeacher"
+    when
+         Group($groupName : name, $subjectPeriodSize : subjectPeriodSize)
+         accumulate(
+            GroupResourceUsage(groupName == $groupName, groupResourceType == GroupResourceTypeEnum.TEACHER ,$teacher : resource);
+            $teacherCount : count($teacher);
+            $teacherCount > $subjectPeriodSize
+         )
+    then
+         scoreHolder.addMediumConstraintMatch(kcontext,(int)(1 - $teacherCount));
+end
+*/
+
+
 //不能超过老师对应科目的最大授课班级数
 rule "maxNum"
     when
@@ -78,7 +167,6 @@ rule "maxNum"
         scoreHolder.addHardConstraintMatch(kcontext, (int)($maxClassNo - $eduClassCount));
 end
 
-//中等约束条件
 //班级不排课
 rule "eduClassUnavailablePeriod"
     when

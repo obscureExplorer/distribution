@@ -67,7 +67,7 @@ public class ConstraintTest {
                     type = EduClassTypeEnum.COLLEGE;
                     break;
                 case "合班":
-                    type = EduClassTypeEnum.UNION;
+                    type = EduClassTypeEnum.GROUP;
                     break;
                 default:
                     type = null;
