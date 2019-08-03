@@ -4,7 +4,7 @@ import domain.Day;
 import domain.LectureOfEduClass;
 import domain.Period;
 import domain.Teacher;
-import domain.Timeslot;
+import domain.TimeSlot;
 import domain.EduClass;
 import domain.Room;
 import domain.EduClass;
@@ -16,10 +16,10 @@ import domain.RuleTypeEnum;
 import domain.AdjacentPenalty;
 import domain.AdjacentLecture;
 import domain.TeacherAssignment;
-import domain.GroupResourceTypeEnum;
+/*import domain.GroupResourceTypeEnum;
 import domain.GroupEduClass;
 import domain.GroupResourceUsage;
-import domain.Group;
+import domain.Group;*/
 global org.optaplanner.core.api.score.buildin.hardmediumsoft.HardMediumSoftScoreHolder scoreHolder;
 
 //global HardSoftScoreHolder scoreHolder;
@@ -68,7 +68,18 @@ rule "roomOccupancy"
     then
         scoreHolder.addHardConstraintMatch(kcontext, -1);
 end
-
+//不能超过老师对应科目的最大授课班级数
+rule "maxNum"
+    when
+        TeacherAssignment($teacher: teacher,$subject : subject, $maxClassNo : maxClassNo)
+        accumulate(
+            $eduClass : EduClass() and exists LectureOfEduClass(eduClass == $eduClass,teacher == $teacher, subject == $subject);
+            $eduClassCount : count($eduClass);
+            $eduClassCount > $maxClassNo
+        )
+    then
+        scoreHolder.addHardConstraintMatch(kcontext, (int)($maxClassNo - $eduClassCount));
+end
 
 //中等约束条件
 //合班规则
@@ -154,18 +165,7 @@ end
 */
 
 
-//不能超过老师对应科目的最大授课班级数
-rule "maxNum"
-    when
-        TeacherAssignment($teacher: teacher,$subject : subject, $maxClassNo : maxClassNo)
-        accumulate(
-            $eduClass : EduClass() and exists LectureOfEduClass(eduClass == $eduClass,teacher == $teacher, subject == $subject);
-            $eduClassCount : count($eduClass);
-            $eduClassCount > $maxClassNo
-        )
-    then
-        scoreHolder.addHardConstraintMatch(kcontext, (int)($maxClassNo - $eduClassCount));
-end
+
 
 //班级不排课
 rule "eduClassUnavailablePeriod"
@@ -225,7 +225,7 @@ rule "insertAdjacent"
         $subjectAdjacent : AdjacentPenalty($subjectName : subjectName, $teacherName : name)
         $period : Period()
         LectureOfEduClass(subject.name == $subjectName, teacher.name == $teacherName, $period == period)
-        LectureOfEduClass(subject.name == $subjectName, teacher.name == $teacherName, period.timeslot.timeslotIndex == $period.timeslot.timeslotIndex + 1,period.day == $period.day)
+        LectureOfEduClass(subject.name == $subjectName, teacher.name == $teacherName, period.timeSlot.timeSlotIndex == $period.timeSlot.timeSlotIndex + 1,period.day == $period.day)
     then
         insertLogical(new AdjacentLecture(subjectName,$teacherName))
 end

@@ -8,25 +8,25 @@ import java.io.Serializable;
 /**
  * Created by xcy on 2019/5/20.
  */
-public class Timeslot implements Serializable {
+public class TimeSlot implements Serializable {
     private static final long serialVersionUID = -7629783018536847059L;
 
     @PlanningId
     private Long id;
 
-    private int timeslotIndex;
+    private int timeSlotIndex;
 
-    public int getTimeslotIndex() {
-        return timeslotIndex;
+    public int getTimeSlotIndex() {
+        return timeSlotIndex;
     }
 
-    public void setTimeslotIndex(int timeslotIndex) {
-        this.timeslotIndex = timeslotIndex;
+    public void setTimeSlotIndex(int timeSlotIndex) {
+        this.timeSlotIndex = timeSlotIndex;
     }
 
     @Override
     public String toString() {
-        return Integer.toString(timeslotIndex);
+        return Integer.toString(timeSlotIndex);
     }
 
     public Long getId() {
@@ -41,12 +41,12 @@ public class Timeslot implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Timeslot timeslot = (Timeslot) o;
-        return timeslotIndex == timeslot.timeslotIndex;
+        TimeSlot timeslot = (TimeSlot) o;
+        return timeSlotIndex == timeslot.timeSlotIndex;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(timeslotIndex);
+        return Objects.hashCode(timeSlotIndex);
     }
 }

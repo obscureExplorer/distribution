@@ -5,8 +5,6 @@ import com.google.common.collect.Multimap;
 import domain.Day;
 import domain.EduClass;
 import domain.EduClassTypeEnum;
-import domain.Group;
-import domain.GroupEduClass;
 import domain.LectureOfEduClass;
 import domain.Period;
 import domain.ResourceTypeEnum;
@@ -18,7 +16,7 @@ import domain.SubjectTypeEnum;
 import domain.Teacher;
 import domain.TeacherAssignment;
 import domain.TimeTablingProblem;
-import domain.Timeslot;
+import domain.TimeSlot;
 import domain.PeriodPenalty;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -36,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 /**
  * Created by xcy on 2019/5/30.
@@ -59,10 +56,10 @@ public class Dataset {
             return d;
         }).collect(Collectors.toList());
 
-        List<Timeslot> timeslots = IntStream.range(0, timeslotNum).mapToObj(i -> {
-            Timeslot ts = new Timeslot();
+        List<TimeSlot> timeslots = IntStream.range(0, timeslotNum).mapToObj(i -> {
+            TimeSlot ts = new TimeSlot();
             ts.setId((long) i);
-            ts.setTimeslotIndex(i + 1);
+            ts.setTimeSlotIndex(i + 1);
             return ts;
         }).collect(Collectors.toList());
 
@@ -73,7 +70,7 @@ public class Dataset {
                 Period p = new Period();
                 p.setId(id++);
                 p.setDay(dayList.get(i));
-                p.setTimeslot(timeslots.get(j));
+                p.setTimeSlot(timeslots.get(j));
                 periodList.add(p);
             }
         }
@@ -256,11 +253,11 @@ public class Dataset {
                 periodPenalty.setSubjectName(csvRecord.get("subjectName"));
                 Day day = new Day();
                 day.setDayIndex(Integer.parseInt(csvRecord.get("day")));
-                Timeslot timeslot = new Timeslot();
-                timeslot.setTimeslotIndex(Integer.parseInt(csvRecord.get("timeslot")));
+                TimeSlot timeslot = new TimeSlot();
+                timeslot.setTimeSlotIndex(Integer.parseInt(csvRecord.get("timeslot")));
                 Period period = new Period();
                 period.setDay(day);
-                period.setTimeslot(timeslot);
+                period.setTimeSlot(timeslot);
                 periodPenalty.setPeriod(period);
 
                 if ("班级".equals(csvRecord.get("resourceType"))) {

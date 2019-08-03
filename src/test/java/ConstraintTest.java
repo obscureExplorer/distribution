@@ -5,7 +5,7 @@ import domain.LectureOfEduClass;
 import domain.Period;
 import domain.Room;
 import domain.TimeTablingProblem;
-import domain.Timeslot;
+import domain.TimeSlot;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.junit.BeforeClass;
@@ -44,11 +44,11 @@ public class ConstraintTest {
 
             Day d = new Day();
             d.setDayIndex(Integer.parseInt(day));
-            Timeslot t = new Timeslot();
-            t.setTimeslotIndex(Integer.parseInt(timeslot));
+            TimeSlot t = new TimeSlot();
+            t.setTimeSlotIndex(Integer.parseInt(timeslot));
             Period period = new Period();
             period.setDay(d);
-            period.setTimeslot(t);
+            period.setTimeSlot(t);
             Room room = new Room();
             room.setName(record.get("room"));
             EduClass eduClass = new EduClass();

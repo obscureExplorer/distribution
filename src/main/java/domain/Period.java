@@ -14,7 +14,7 @@ public class Period implements Serializable {
     @PlanningId
     private Long id;
     private Day day;
-    private Timeslot timeslot;
+    private TimeSlot timeSlot;
 
     public Day getDay() {
         return day;
@@ -24,17 +24,17 @@ public class Period implements Serializable {
         this.day = day;
     }
 
-    public Timeslot getTimeslot() {
-        return timeslot;
+    public TimeSlot getTimeSlot() {
+        return timeSlot;
     }
 
-    public void setTimeslot(Timeslot timeslot) {
-        this.timeslot = timeslot;
+    public void setTimeSlot(TimeSlot timeSlot) {
+        this.timeSlot = timeSlot;
     }
 
     @Override
     public String toString() {
-        return day + "_" + timeslot;
+        return day + "_" + timeSlot;
     }
 
     @Override
@@ -43,12 +43,12 @@ public class Period implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         Period period = (Period) o;
         return Objects.equals(day, period.day) &&
-                Objects.equals(timeslot, period.timeslot);
+                Objects.equals(timeSlot, period.timeSlot);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(day, timeslot);
+        return Objects.hash(day, timeSlot);
     }
 
     public Long getId() {

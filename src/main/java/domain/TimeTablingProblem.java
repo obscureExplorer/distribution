@@ -25,7 +25,7 @@ public class TimeTablingProblem implements Serializable {
     private List<Day> dayList;
 
     @ProblemFactCollectionProperty
-    private List<Timeslot> timeslotList;
+    private List<TimeSlot> timeslotList;
 
     @ValueRangeProvider(id = "periodRange")
     @ProblemFactCollectionProperty
@@ -47,11 +47,12 @@ public class TimeTablingProblem implements Serializable {
     @ProblemFactCollectionProperty
     private List<PeriodPenalty> periodPenaltyList;
 
+    @ProblemFactCollectionProperty
+    private List<TeacherAssignment> teacherAssignmentList;
+
     @PlanningEntityCollectionProperty
     private List<LectureOfEduClass> lectureList;
 
-    @ProblemFactCollectionProperty
-    private List<TeacherAssignment> teacherAssignmentList;
 
 /*    @ProblemFactCollectionProperty
     private List<Group> groupList;
@@ -72,11 +73,11 @@ public class TimeTablingProblem implements Serializable {
         this.dayList = dayList;
     }
 
-    public List<Timeslot> getTimeslotList() {
+    public List<TimeSlot> getTimeslotList() {
         return timeslotList;
     }
 
-    public void setTimeslotList(List<Timeslot> timeslotList) {
+    public void setTimeslotList(List<TimeSlot> timeslotList) {
         this.timeslotList = timeslotList;
     }
 
